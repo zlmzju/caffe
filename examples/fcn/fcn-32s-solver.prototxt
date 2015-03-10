@@ -1,0 +1,17 @@
+# The train/test net protocol buffer definition
+net: "examples/fcn/fcn-32s-pascal.prototxt"
+test_iter: 1000
+test_interval: 1000
+base_lr: 0.01
+lr_policy: "step"
+gamma: 0.1
+stepsize: 10000
+display: 20
+max_iter: 45000
+momentum: 0.9
+weight_decay: 0.0005
+snapshot: 5000
+snapshot_prefix: "examples/fcn/fcn-32s-pascal"
+# solver mode: CPU or GPU
+solver_mode: GPU
+

@@ -1,0 +1,399 @@
+name: 'FCN'
+#layer 1 data and map
+layers 
+{
+  name: "data1"
+  type: DATA
+  top: "data"
+  # top: "hello"
+  data_param {
+    source: "examples/fcn/datasets_256_256/3000image/db_files/3000_train_img"
+    batch_size: 16
+    mirror: false
+	mean_file: "examples/fcn/datasets_256_256/voc_image.binaryproto"
+  }
+  include: { phase: TRAIN }
+}
+layers {
+  name: "data2"
+  type: DATA
+  top: "inputmap"
+  # top: "world"
+  data_param {
+    source: "examples/fcn/datasets_256_256/3000image/map_files/train_map_leveldb"
+    batch_size: 16
+    mirror: false
+  }
+  include: { phase: TRAIN }
+}
+layers 
+{
+  name: "data1"
+  type: DATA
+  top: "data"
+  # top: "hello"
+  data_param {
+    source: "examples/fcn/datasets_256_256/3000image/db_files/3000_test_img"
+    batch_size: 16
+    mirror: false
+	mean_file: "examples/fcn/datasets_256_256/voc_image.binaryproto"
+  }
+  include: { phase: TEST }
+}
+layers {
+  name: "data2"
+  type: DATA
+  top: "inputmap"
+  # top: "world"
+  data_param {
+    source: "examples/fcn/datasets_256_256/3000image/map_files/test_map_leveldb"
+    batch_size: 16
+    mirror: false
+  }
+  include: { phase: TEST }
+}
+
+#layer 3 convolution+RELU+pool
+layers 
+{ 
+	bottom: 'data' 
+	top: 'conv1_2' 
+	name: 'conv1_2' 
+	type: CONVOLUTION
+	blobs_lr: 1 
+	blobs_lr: 2 
+	weight_decay: 1 
+	weight_decay: 0
+	convolution_param 
+	{ 
+		engine: CAFFE 
+		num_output: 64 
+		pad: 1 
+		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
+	} 
+}
+layers 
+{ 
+	bottom: 'conv1_2' 
+	top: 'conv1_2' 
+	name: 'relu1_2' 
+	type: RELU 
+}
+layers 
+{ 
+	name: 'pool1' 
+	bottom: 'conv1_2' 
+	top: 'pool1' 
+	type: POOLING
+	pooling_param 
+	{ 
+		pool: MAX 
+		kernel_size: 2 
+		stride: 2 
+	} 
+}
+
+#layer 4 convolution+RELU
+layers 
+{ 
+	name: 'conv2_1' 
+	bottom: 'pool1' 
+	top: 'conv2_1' 
+	type: CONVOLUTION
+	blobs_lr: 1 
+	blobs_lr: 2 
+	weight_decay: 1 
+	weight_decay: 0
+	convolution_param 
+	{ 
+		engine: CAFFE 
+		num_output: 128 
+		pad: 1 
+		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
+	} 
+}
+layers 
+{ 
+	bottom: 'conv2_1' 
+	top: 'conv2_1' 
+	name: 'relu2_1' 
+	type: RELU 
+}
+
+layers 
+{ 
+	bottom: 'conv2_1' 
+	top: 'pool2' 
+	name: 'pool2' 
+	type: POOLING
+	pooling_param 
+	{ 
+		pool: MAX 
+		kernel_size: 2 
+		stride: 2 
+	} 
+}
+
+#layer 6 convolution+RELU
+layers 
+{ 
+	bottom: 'pool2' 
+	top: 'conv3_1' 
+	name: 'conv3_1' 
+	type: CONVOLUTION
+	blobs_lr: 1 
+	blobs_lr: 2 
+	weight_decay: 1 
+	weight_decay: 0
+	convolution_param 
+	{ 
+		engine: CAFFE 
+		num_output: 256 
+		pad: 1 
+		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
+	} 
+}
+layers 
+{ 
+	bottom: 'conv3_1' 
+	top: 'conv3_1' 
+	name: 'relu3_1' 
+	type: RELU 
+}
+
+layers 
+{ 
+	bottom: 'conv3_1' 
+	top: 'pool3' 
+	name: 'pool3' 
+	type: POOLING
+	pooling_param 
+	{ 
+		pool: MAX 
+		kernel_size: 2 
+		stride: 2 
+	} 
+}
+#layer 9 convolution+RELU
+layers 
+{ 
+	bottom: 'pool3' 
+	top: 'conv4_1' 
+	name: 'conv4_1' 
+	type: CONVOLUTION
+	blobs_lr: 1 
+	blobs_lr: 2 
+	weight_decay: 1 
+	weight_decay: 0
+	convolution_param { 
+		engine: CAFFE 
+		num_output: 512 
+		pad: 1 
+		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
+    } 
+}
+layers 
+{ 
+	bottom: 'conv4_1' 
+	top: 'conv4_1' 
+	name: 'relu4_1' 
+	type: RELU 
+}
+layers 
+{ 
+	bottom: 'conv4_1' 
+	top: 'pool4' 
+	name: 'pool4' 
+	type: POOLING
+	pooling_param 
+	{ 
+		pool: MAX 
+		kernel_size: 2 
+		stride: 2 
+	} 
+}
+
+
+#layer 16 convolution+RELU+dropout
+layers 
+{ 
+	bottom: 'pool4' 
+	top: 'fc6' 
+	name: 'conv5' 
+	type: CONVOLUTION
+	blobs_lr: 1 
+	blobs_lr: 2 
+	weight_decay: 1 
+	weight_decay: 0
+	convolution_param 
+	{ 
+		engine: CAFFE 
+		kernel_size: 7 
+		num_output: 4096
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		} 
+	} 
+}
+
+layers 
+{ 
+	bottom: 'fc6' 
+	top: 'fc6' 
+	name: 'relu6' 
+	type: RELU 
+}
+layers 
+{ 
+	bottom: 'fc6' 
+	top: 'fc6' 
+	name: 'drop6' 
+	type: DROPOUT
+	dropout_param 
+	{ 
+		dropout_ratio: 0.5 
+	} 
+}
+
+#layer 17 convolution+RELU+dropout
+layers 
+{ 
+	bottom: 'fc6' 
+	top: 'fc7' 
+	name: 'conv6' 
+	type: CONVOLUTION
+	blobs_lr: 1 
+	blobs_lr: 2 
+	weight_decay: 1 
+	weight_decay: 0
+	convolution_param 
+	{ 
+		engine: CAFFE 
+		kernel_size: 1 
+		num_output: 4096 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
+	} 
+}
+layers 
+{ 
+	bottom: 'fc7' 
+	top: 'fc7' 
+	name: 'relu7' 
+	type: RELU 
+}
+layers 
+{ 
+	bottom: 'fc7' 
+	top: 'fc7' 
+	name: 'drop7' 
+	type: DROPOUT
+	dropout_param 
+	{ 
+		dropout_ratio: 0.5 
+	} 
+}
+
+#layer 18 convolution
+layers 
+{ 
+	name: 'conv7' 
+	type: CONVOLUTION 
+	bottom: 'fc7' 
+	top: 'score'
+	blobs_lr: 1 
+	blobs_lr: 2 
+	weight_decay: 1 
+	weight_decay: 0
+	convolution_param 
+	{ 
+		engine: CAFFE 
+		num_output: 1 
+		kernel_size: 1 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
+	} 
+}
+#layer 19 deconvolution upsample
+layers 
+{ 
+	type: DECONVOLUTION 
+	name: 'upsample' 
+	bottom: 'score' 
+	top: 'map'
+	blobs_lr: 0 
+	blobs_lr: 0
+	convolution_param 
+	{ 
+		num_output: 1
+		kernel_size: 31
+		stride: 25
+	} 
+}
+# #layer 20 crop
+# layers 
+# { 
+	# type: CROP 
+	# name: 'crop' 
+	# bottom: 'bigscore' 
+	# bottom: 'inputmap' 
+	# top: 'map' 
+# }
+#layer 21 loss
+layers 
+{
+  name: "loss"
+  type: EUCLIDEAN_LOSS
+  bottom: "map"
+  bottom: "inputmap"
+  top: "loss"
+}
