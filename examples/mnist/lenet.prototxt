@@ -4,17 +4,13 @@ input_dim: 64
 input_dim: 1
 input_dim: 28
 input_dim: 28
-layer {
+layers {
   name: "conv1"
-  type: "Convolution"
+  type: CONVOLUTION
   bottom: "data"
   top: "conv1"
-  param {
-    lr_mult: 1
-  }
-  param {
-    lr_mult: 2
-  }
+  blobs_lr: 1
+  blobs_lr: 2
   convolution_param {
     num_output: 20
     kernel_size: 5
@@ -27,9 +23,9 @@ layer {
     }
   }
 }
-layer {
+layers {
   name: "pool1"
-  type: "Pooling"
+  type: POOLING
   bottom: "conv1"
   top: "pool1"
   pooling_param {
@@ -38,17 +34,13 @@ layer {
     stride: 2
   }
 }
-layer {
+layers {
   name: "conv2"
-  type: "Convolution"
+  type: CONVOLUTION
   bottom: "pool1"
   top: "conv2"
-  param {
-    lr_mult: 1
-  }
-  param {
-    lr_mult: 2
-  }
+  blobs_lr: 1
+  blobs_lr: 2
   convolution_param {
     num_output: 50
     kernel_size: 5
@@ -61,9 +53,9 @@ layer {
     }
   }
 }
-layer {
+layers {
   name: "pool2"
-  type: "Pooling"
+  type: POOLING
   bottom: "conv2"
   top: "pool2"
   pooling_param {
@@ -72,17 +64,13 @@ layer {
     stride: 2
   }
 }
-layer {
+layers {
   name: "ip1"
-  type: "InnerProduct"
+  type: INNER_PRODUCT
   bottom: "pool2"
   top: "ip1"
-  param {
-    lr_mult: 1
-  }
-  param {
-    lr_mult: 2
-  }
+  blobs_lr: 1
+  blobs_lr: 2
   inner_product_param {
     num_output: 500
     weight_filler {
@@ -93,23 +81,19 @@ layer {
     }
   }
 }
-layer {
+layers {
   name: "relu1"
-  type: "ReLU"
+  type: RELU
   bottom: "ip1"
   top: "ip1"
 }
-layer {
+layers {
   name: "ip2"
-  type: "InnerProduct"
+  type: INNER_PRODUCT
   bottom: "ip1"
   top: "ip2"
-  param {
-    lr_mult: 1
-  }
-  param {
-    lr_mult: 2
-  }
+  blobs_lr: 1
+  blobs_lr: 2
   inner_product_param {
     num_output: 10
     weight_filler {
@@ -120,9 +104,9 @@ layer {
     }
   }
 }
-layer {
+layers {
   name: "prob"
-  type: "Softmax"
+  type: SOFTMAX
   bottom: "ip2"
   top: "prob"
 }

@@ -379,17 +379,7 @@ layers
 		stride: 25
 	} 
 }
-# #layer 20 crop
-# layers 
-# { 
-	# type: CROP 
-	# name: 'crop' 
-	# bottom: 'bigscore' 
-	# bottom: 'inputmap' 
-	# top: 'map' 
-# }
-#layer 21 loss
-layers 
+layers
 {
   name: "loss"
   type: EUCLIDEAN_LOSS

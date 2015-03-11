@@ -87,6 +87,7 @@ docs/dev
 # LevelDB files
 *.sst
 *.ldb
+*.log
 LOCK
 LOG*
 CURRENT
