@@ -32,9 +32,15 @@ IMAGE_FILE = caffe_root+'/examples/images/cat.jpg'
 
 caffe.set_mode_gpu()
 net = caffe.Classifier(MODEL_FILE, PRETRAINED,
-                       channel_swap=(2,1,0),
-                       raw_scale=255,
-                       image_dims=(500,500))
+                       caffe.TEST)
+transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
+transformer.set_transpose('data', (2,0,1))
+transformer.set_mean('data', np.load(caffe_root + 'python/caffe/imagenet/ilsvrc_2012_mean.npy').mean(1).mean(1)) # mean pixel
+transformer.set_raw_scale('data', 255)  # the reference model operates on images in [0,255] range instead of [0,1]
+transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
+net.blobs['data'].reshape(1,3,500,500)
+net.blobs['data'].data[...] = transformer.preprocess('data', caffe.io.load_image(IMAGE_FILE))
+out = net.forward()
 input_image = caffe.io.load_image(IMAGE_FILE)
 #plt.imshow(input_image)
 
@@ -42,5 +48,4 @@ out = net.forward()
 print [(k, v.data.shape) for k, v in net.blobs.items()]
 
 map = net.blobs['map'].data[0,:]
-
 vis_square(map)
