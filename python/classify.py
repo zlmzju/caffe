@@ -99,13 +99,6 @@ def main(argv):
         caffe.set_mode_gpu()
     	print('GPU mode')
 
-    if args.gpu:
-        caffe.set_mode_gpu()
-        print("GPU mode")
-    else:
-        caffe.set_mode_cpu()
-        print("CPU mode")
-
     # Make classifier.
     classifier = caffe.Classifier(args.model_def, args.pretrained_model,
             image_dims=image_dims,  mean=mean,

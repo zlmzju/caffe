@@ -9,7 +9,7 @@
 namespace caffe {
 
 template <typename Dtype>
-Blob<Dtype> BaseconvolutionLayer<Dtype>::col_buffer_;
+Blob<Dtype> BaseConvolutionLayer<Dtype>::col_buffer_;
 
 template <typename Dtype>
 void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
