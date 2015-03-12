@@ -1,6 +1,5 @@
 name: 'FCN'
-#layer 1 data and map
-input: 'data'
+input:'data'
 input_dim:1
 input_dim:3
 input_dim:256
@@ -244,14 +243,85 @@ layers
 	} 
 }
 
+#layer 17 convolution+RELU+dropout
+layers 
+{ 
+	bottom: 'fc6' 
+	top: 'fc7' 
+	name: 'conv6' 
+	type: CONVOLUTION
+	blobs_lr: 1 
+	blobs_lr: 2 
+	weight_decay: 1 
+	weight_decay: 0
+	convolution_param 
+	{ 
+		engine: CAFFE 
+		kernel_size: 1 
+		num_output: 4096 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
+	} 
+}
+layers 
+{ 
+	bottom: 'fc7' 
+	top: 'fc7' 
+	name: 'relu7' 
+	type: RELU 
+}
+layers 
+{ 
+	bottom: 'fc7' 
+	top: 'fc7' 
+	name: 'drop7' 
+	type: DROPOUT
+	dropout_param 
+	{ 
+		dropout_ratio: 0.5 
+	} 
+}
+
+#layer 18 convolution
+layers 
+{ 
+	name: 'conv7' 
+	type: CONVOLUTION 
+	bottom: 'fc7' 
+	top: 'score'
+	blobs_lr: 1 
+	blobs_lr: 2 
+	weight_decay: 1 
+	weight_decay: 0
+	convolution_param 
+	{ 
+		engine: CAFFE 
+		num_output: 1 
+		kernel_size: 1 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
+	} 
+}
 #layer 19 deconvolution upsample
 layers 
 { 
 	type: DECONVOLUTION 
 	name: 'upsample' 
-	bottom: 'fc6' 
+	bottom: 'score' 
 	top: 'map'
-	blobs_lr: 0
+	blobs_lr: 0 
 	blobs_lr: 0
 	convolution_param 
 	{
@@ -267,5 +337,5 @@ layers
 		  type: "constant"
 		  value: 0
 		}
-	} 
+	}
 }

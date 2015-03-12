@@ -34,15 +34,15 @@ def load_data(filename):
 # Set the right path to your model definition file, pretrained model weights,
 # and the image you would like to classify.
 MODEL_FILE = 'fcn-32s-pascal.prototxt'
-PRETRAINED = 'fcn-32s-pascal_iter_1000.caffemodel'
+PRETRAINED = 'fcn-32s-pascal_iter_5000.caffemodel'
 caffe.set_mode_gpu()
 net = caffe.Classifier(MODEL_FILE, PRETRAINED,
                        caffe.TEST)
                        
-IMAGE_FILE = caffe_root+'/examples/images/bird.jpg'
+IMAGE_FILE = caffe_root+'/examples/images/cat.jpg'
 load_data(IMAGE_FILE)
 out = net.forward()
 print [(k, v.data.shape) for k, v in net.blobs.items()]
+filt= net.params['upsample'][0].data[0,:]
 map = net.blobs['map'].data[0,:]
-filt= net.params['upsample'][0].data
 vis_square(map)

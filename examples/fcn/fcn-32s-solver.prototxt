@@ -1,5 +1,5 @@
 # The train/test net protocol buffer definition
-net: "examples/fcn/fcn-32s-pascal-new.prototxt"
+net: "examples/fcn/fcn-32s-pascal.prototxt"
 test_iter: 1000
 test_interval: 1000
 base_lr: 0.0001
