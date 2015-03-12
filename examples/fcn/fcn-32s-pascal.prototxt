@@ -69,6 +69,14 @@ layers
 		num_output: 64 
 		pad: 100 
 		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
 	} 
 }
 layers 
@@ -96,6 +104,14 @@ layers
 		num_output: 64 
 		pad: 1 
 		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
 	} 
 }
 layers 
@@ -136,6 +152,14 @@ layers
 		num_output: 128 
 		pad: 1 
 		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
 	} 
 }
 layers 
@@ -163,6 +187,14 @@ layers
 		num_output: 128 
 		pad: 1 
 		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
 	} 
 }
 layers 
@@ -203,6 +235,14 @@ layers
 		num_output: 256 
 		pad: 1 
 		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
 	} 
 }
 layers 
@@ -230,6 +270,14 @@ layers
 		num_output: 256 
 		pad: 1 
 		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
 	} 
 }
 layers 
@@ -258,6 +306,14 @@ layers
 		num_output: 256 
 		pad: 1 
 		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
 	}
 }
 layers 
@@ -296,6 +352,14 @@ layers
 		num_output: 512 
 		pad: 1 
 		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
   } 
 }
 layers 
@@ -322,6 +386,14 @@ layers
 		num_output: 512 
 		pad: 1 
 		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
 	} 
 }
 layers 
@@ -348,6 +420,14 @@ layers {
 		num_output: 512 
 		pad: 1 
 		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
 	} 
 }
 layers 
@@ -389,6 +469,14 @@ layers
 		num_output: 512 
 		pad: 1 
 		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
 	} 
 }
 layers 
@@ -415,6 +503,14 @@ layers
 		num_output: 512 
 		pad: 1 
 		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
 	} 
 }
 layers 
@@ -442,6 +538,14 @@ layers
 		num_output: 512 
 		pad: 1 
 		kernel_size: 3 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
 	} 
 }
 layers 
@@ -481,6 +585,14 @@ layers
 		engine: CAFFE 
 		kernel_size: 7 
 		num_output: 4096 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
 	} 
 }
 
@@ -519,6 +631,14 @@ layers
 		engine: CAFFE 
 		kernel_size: 1 
 		num_output: 4096 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
 	} 
 }
 layers 
@@ -556,6 +676,14 @@ layers
 		engine: CAFFE 
 		num_output: 21 
 		kernel_size: 1 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
 	} 
 }
 #layer 19 deconvolution upsample
@@ -569,9 +697,18 @@ layers
 	blobs_lr: 0
 	convolution_param 
 	{ 
+		engine: CAFFE 
 		num_output: 21
 		kernel_size: 64 
 		stride: 32 
+		weight_filler {
+		  type: "gaussian"
+		  std: 0.01
+		}
+		bias_filler {
+		  type: "constant"
+		  value: 0
+		}
 	} 
 }
 #layer 20 crop
