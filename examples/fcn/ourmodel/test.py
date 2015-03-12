@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 import numpy as np
 import matplotlib.pyplot as plt
-
+import caffe
+#%matplotlib inline
 # Make sure that caffe is on the python path:
 caffe_root = '/home/liming/project/caffe/'  # this file is expected to be in {caffe_root}/examples
-import sys
-sys.path.insert(0, caffe_root + 'python')
 
-import caffe
 # take an array of shape (n, height, width) or (n, height, width, channels)
 # and visualize each (height, width) thing in a grid of size approx. sqrt(n) by sqrt(n)
 def vis_square(data, padsize=1, padval=0):
@@ -22,50 +20,29 @@ def vis_square(data, padsize=1, padval=0):
     # tile the filters into an image
     data = data.reshape((n, n) + data.shape[1:]).transpose((0, 2, 1, 3) + tuple(range(4, data.ndim + 1)))
     data = data.reshape((n * data.shape[1], n * data.shape[3]) + data.shape[4:])
-    plt.imshow(data)
     
+    plt.imshow(data)
 
-def load_data(filename,W,H):
+def load_data(filename):
     transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
     transformer.set_transpose('data', (2,0,1))
     transformer.set_mean('data', np.load(caffe_root + 'python/caffe/imagenet/ilsvrc_2012_mean.npy').mean(1).mean(1)) # mean pixel
     transformer.set_raw_scale('data', 255)  # the reference model operates on images in [0,255] range instead of [0,1]
     transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
-    net.blobs['data'].reshape(1,3,W,H)
+    net.blobs['data'].reshape(1,3,256,256)
     net.blobs['data'].data[...] = transformer.preprocess('data', caffe.io.load_image(IMAGE_FILE))
 # Set the right path to your model definition file, pretrained model weights,
 # and the image you would like to classify.
-MODEL_FILE = 'fcn-32s-pascal-origin.prototxt'
-PRETRAINED = 'fcn-32s-pascal-origin.caffemodel'
+MODEL_FILE = 'fcn-32s-pascal.prototxt'
+PRETRAINED = 'fcn-32s-pascal_iter_1000.caffemodel'
 caffe.set_mode_gpu()
 net = caffe.Classifier(MODEL_FILE, PRETRAINED,
                        caffe.TEST)
-
-IMAGE_FILE = caffe_root+'/examples/images/dog_cat.jpg'
-W=500
-H=500
-load_data(IMAGE_FILE,W,H)
+                       
+IMAGE_FILE = caffe_root+'/examples/images/bird.jpg'
+load_data(IMAGE_FILE)
 out = net.forward()
 print [(k, v.data.shape) for k, v in net.blobs.items()]
-
-data = net.blobs['data'].data[0,:]
 map = net.blobs['map'].data[0,:]
-
-
-
-label=np.zeros([W,W])
-for i in range(W):
-    for j in range(H):
-        label[i,j]=map[:,i,j].argmax();
-im=np.zeros([W,H,3])
-im[:,:,0]=data[2,:,:]
-im[:,:,1]=data[1,:,:]
-im[:,:,2]=data[0,:,:]
-im-=im.min()
-im/=im.max()
-plt.figure(1)
-plt.imshow(im)
-#plt.figure(2)
-#vis_square(map)
-plt.figure(3)
-plt.imshow(label)
+filt= net.params['upsample'][0].data
+vis_square(map)

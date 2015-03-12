@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 
 # Make sure that caffe is on the python path:
 caffe_root = '../'  # this file is expected to be in {caffe_root}/examples
-import sys
-sys.path.insert(0, caffe_root + 'python')
 
 import caffe
 
