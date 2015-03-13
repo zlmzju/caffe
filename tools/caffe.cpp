@@ -7,7 +7,10 @@
 
 #include "boost/algorithm/string.hpp"
 #include "caffe/caffe.hpp"
-
+#include "boost/smart_ptr/shared_ptr.hpp"
+#include "opencv2/core/core.hpp"
+#include "opencv2/highgui/highgui.hpp"
+using namespace cv;
 using caffe::Blob;
 using caffe::Caffe;
 using caffe::Net;
@@ -121,7 +124,7 @@ int train() {
   LOG(INFO) << "Starting Optimization";
   shared_ptr<caffe::Solver<float> >
     solver(caffe::GetSolver<float>(solver_param));
-
+  
   if (FLAGS_snapshot.size()) {
     LOG(INFO) << "Resuming from " << FLAGS_snapshot;
     solver->Solve(FLAGS_snapshot);
@@ -129,7 +132,30 @@ int train() {
     CopyLayers(&*solver, FLAGS_weights);
     solver->Solve();
   } else {
+    LOG(INFO) << "START";
     solver->Solve();
+    LOG(INFO) << "Liming Debug:";
+    const boost::shared_ptr<Blob<float> > feature_blob2 = solver->net()->blob_by_name("inputmap");
+    int num2=feature_blob2->num();
+    int channel2=feature_blob2->channels();
+    int imrows2=feature_blob2->height();
+    int imcols2=feature_blob2->width();
+    LOG(INFO)<<"num:"<<num2<<" channel:"<<channel2<<" rows:"<<imrows2<<"; cols:"<<imcols2;
+    	Mat blob_data=Mat::zeros(imrows2,imcols2,CV_64FC1);
+
+    int n=0;
+    for (int c = 0; c < 1; ++c) {
+      for (int h = 0; h < imrows2; ++h) {
+       	for (int w = 0; w < imcols2;++w) {
+          blob_data.at<double>(h,w)=*(feature_blob2->mutable_cpu_data() + feature_blob2->offset(n,c,h,w));
+        }
+      }
+    }
+    double min=-1,max=-1;
+    cv::minMaxIdx(blob_data,&min,&max);
+    LOG(INFO)<<"min:"<<min<<"; max:"<<max;
+    LOG(INFO) << "End of Debug.";
+    //solver->Solve();
   }
   LOG(INFO) << "Optimization Done.";
   return 0;

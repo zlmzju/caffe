@@ -41,7 +41,7 @@ caffe.set_mode_gpu()
 net = caffe.Classifier(MODEL_FILE, PRETRAINED,
                        caffe.TEST)
 
-IMAGE_FILE = caffe_root+'/examples/images/dog_cat.jpg'
+IMAGE_FILE ='../dataset/JPEGImages/000002.jpg'
 W=500
 H=500
 load_data(IMAGE_FILE,W,H)
@@ -64,8 +64,8 @@ im[:,:,2]=data[0,:,:]
 im-=im.min()
 im/=im.max()
 plt.figure(1)
+vis_square(map)
+plt.figure(2)
 plt.imshow(im)
-#plt.figure(2)
-#vis_square(map)
 plt.figure(3)
 plt.imshow(label)
