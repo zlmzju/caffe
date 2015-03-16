@@ -1,57 +1,10 @@
 name: 'FCN'
-#layer 1 data and map
-layers 
-{
-  name: "data1"
-  type: DATA
-  top: "data"
-  # top: "hello"
-  data_param {
-    source: "examples/fcn/data/voc_train_leveldb"
-    batch_size: 2
-    mirror: false
-	mean_file: "examples/fcn/data/voc_train_imagemean"
-  }
-  include: { phase: TRAIN }
-}
-layers {
-  name: "data2"
-  type: DATA
-  top: "inputmap"
-  # top: "world"
-  data_param {
-    source: "examples/fcn/data/voc_trainlabel_leveldb"
-    batch_size: 2
-    mirror: false
-  }
-  include: { phase: TRAIN }
-}
-layers 
-{
-  name: "data1"
-  type: DATA
-  top: "data"
-  # top: "hello"
-  data_param {
-    source: "examples/fcn/data/voc_test_leveldb"
-    batch_size: 2
-    mirror: false
-	mean_file: "examples/fcn/data/voc_train_imagemean"
-  }
-  include: { phase: TEST }
-}
-layers {
-  name: "data2"
-  type: DATA
-  top: "inputmap"
-  # top: "world"
-  data_param {
-    source: "examples/fcn/data/voc_testlabel_leveldb"
-    batch_size: 2
-    mirror: false
-  }
-  include: { phase: TEST }
-}
+input: 'data'
+input_dim: 1
+input_dim: 3
+input_dim: 500
+input_dim: 500
+force_backward: true
 #layer 2 convolution+RELU
 layers 
 { 
@@ -69,14 +22,6 @@ layers
 		num_output: 64 
 		pad: 100 
 		kernel_size: 3 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
 	} 
 }
 layers 
@@ -104,14 +49,6 @@ layers
 		num_output: 64 
 		pad: 1 
 		kernel_size: 3 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
 	} 
 }
 layers 
@@ -152,14 +89,6 @@ layers
 		num_output: 128 
 		pad: 1 
 		kernel_size: 3 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
 	} 
 }
 layers 
@@ -187,14 +116,6 @@ layers
 		num_output: 128 
 		pad: 1 
 		kernel_size: 3 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
 	} 
 }
 layers 
@@ -235,14 +156,6 @@ layers
 		num_output: 256 
 		pad: 1 
 		kernel_size: 3 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
 	} 
 }
 layers 
@@ -270,14 +183,6 @@ layers
 		num_output: 256 
 		pad: 1 
 		kernel_size: 3 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
 	} 
 }
 layers 
@@ -306,14 +211,6 @@ layers
 		num_output: 256 
 		pad: 1 
 		kernel_size: 3 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
 	}
 }
 layers 
@@ -352,14 +249,6 @@ layers
 		num_output: 512 
 		pad: 1 
 		kernel_size: 3 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
   } 
 }
 layers 
@@ -386,14 +275,6 @@ layers
 		num_output: 512 
 		pad: 1 
 		kernel_size: 3 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
 	} 
 }
 layers 
@@ -420,14 +301,6 @@ layers {
 		num_output: 512 
 		pad: 1 
 		kernel_size: 3 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
 	} 
 }
 layers 
@@ -469,14 +342,6 @@ layers
 		num_output: 512 
 		pad: 1 
 		kernel_size: 3 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
 	} 
 }
 layers 
@@ -503,14 +368,6 @@ layers
 		num_output: 512 
 		pad: 1 
 		kernel_size: 3 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
 	} 
 }
 layers 
@@ -538,14 +395,6 @@ layers
 		num_output: 512 
 		pad: 1 
 		kernel_size: 3 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
 	} 
 }
 layers 
@@ -585,14 +434,6 @@ layers
 		engine: CAFFE 
 		kernel_size: 7 
 		num_output: 4096 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
 	} 
 }
 
@@ -631,14 +472,6 @@ layers
 		engine: CAFFE 
 		kernel_size: 1 
 		num_output: 4096 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
 	} 
 }
 layers 
@@ -676,14 +509,6 @@ layers
 		engine: CAFFE 
 		num_output: 21 
 		kernel_size: 1 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
 	} 
 }
 #layer 19 deconvolution upsample
@@ -697,18 +522,9 @@ layers
 	blobs_lr: 0
 	convolution_param 
 	{ 
-		engine: CAFFE 
 		num_output: 21
 		kernel_size: 64 
 		stride: 32 
-		weight_filler {
-		  type: "gaussian"
-		  std: 0.01
-		}
-		bias_filler {
-		  type: "constant"
-		  value: 0
-		}
 	} 
 }
 #layer 20 crop
@@ -720,13 +536,12 @@ layers
 	bottom: 'data' 
 	top: 'map' 
 }
-
-#layer 22 loss
-layers 
-{
-  name: "loss"
-  type: SOFTMAX_LOSS
-  bottom: "map"
-  bottom: "inputmap"
-  top: "loss"
-}
+# #layer 21 loss
+# layers 
+# {
+  # name: "loss"
+  # type: EUCLIDEAN_LOSS
+  # bottom: "upscore"
+  # bottom: "map"
+  # top: "loss"
+# }
