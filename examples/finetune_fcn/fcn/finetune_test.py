@@ -41,14 +41,13 @@ net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
 
 print [(k, v[0].data.shape) for k, v in net.params.items()]
 
-IMAGE_FILE =caffe_root+'examples/images/cat.jpg'
+IMAGE_FILE =caffe_root+'examples/images/dog_cat.jpg'
 W=500
 H=500
 load_data(IMAGE_FILE,W,H)
-%timeit net.forward()
+out=net.forward()
 data = net.blobs['data'].data[0,:]
-map = net.blobs['map'].data[0,:]
-
+map = net.blobs['map'].data[0,0,:]
 im=np.zeros([W,H,3])
 im[:,:,0]=data[2,:,:]
 im[:,:,1]=data[1,:,:]
@@ -58,5 +57,5 @@ im/=im.max()
 plt.figure(1)
 plt.imshow(im)
 plt.figure(2)
-vis_square(map)
+plt.imshow(map)
 plt.draw()

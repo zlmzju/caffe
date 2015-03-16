@@ -134,29 +134,47 @@ int train() {
   } else {
     LOG(INFO) << "START";
     solver->Solve();
+  }
     LOG(INFO) << "Liming Debug:";
-    const boost::shared_ptr<Blob<float> > feature_blob2 = solver->net()->blob_by_name("inputmap");
-    int num2=feature_blob2->num();
-    int channel2=feature_blob2->channels();
-    int imrows2=feature_blob2->height();
-    int imcols2=feature_blob2->width();
-    LOG(INFO)<<"num:"<<num2<<" channel:"<<channel2<<" rows:"<<imrows2<<"; cols:"<<imcols2;
-    	Mat blob_data=Mat::zeros(imrows2,imcols2,CV_64FC1);
+    const boost::shared_ptr<Blob<float> > feature_blob = solver->net()->blob_by_name("data");
+    int num=feature_blob->num();
+    int channel=feature_blob->channels();
+    int imrows=feature_blob->height();
+    int imcols=feature_blob->width();
+    LOG(INFO)<<"data, "<<"num:"<<num<<" channel:"<<channel<<" rows:"<<imrows<<"; cols:"<<imcols;
+    Mat blob_data=Mat::zeros(imrows,imcols,CV_64FC1);
 
     int n=0;
     for (int c = 0; c < 1; ++c) {
-      for (int h = 0; h < imrows2; ++h) {
-       	for (int w = 0; w < imcols2;++w) {
-          blob_data.at<double>(h,w)=*(feature_blob2->mutable_cpu_data() + feature_blob2->offset(n,c,h,w));
+      for (int h = 0; h < imrows; ++h) {
+       	for (int w = 0; w < imcols;++w) {
+          blob_data.at<double>(h,w)=*(feature_blob->mutable_cpu_data() + feature_blob->offset(n,c,h,w));
         }
       }
     }
     double min=-1,max=-1;
     cv::minMaxIdx(blob_data,&min,&max);
     LOG(INFO)<<"min:"<<min<<"; max:"<<max;
+    const boost::shared_ptr<Blob<float> > feature_blob2 = solver->net()->blob_by_name("inputmap");
+    int num2=feature_blob2->num();
+    int channel2=feature_blob2->channels();
+    int imrows2=feature_blob2->height();
+    int imcols2=feature_blob2->width();
+    LOG(INFO)<<"inputmap, "<<"num:"<<num2<<" channel:"<<channel2<<" rows:"<<imrows2<<"; cols:"<<imcols2;
+    Mat blob_data2=Mat::zeros(imrows2,imcols2,CV_64FC1);
+
+    for (int c = 0; c < 1; ++c) {
+      for (int h = 0; h < imrows2; ++h) {
+       	for (int w = 0; w < imcols2;++w) {
+          blob_data2.at<double>(h,w)=*(feature_blob2->mutable_cpu_data() + feature_blob2->offset(n,c,h,w));
+        }
+      }
+    }
+    double min2=-1,max2=-1;
+    cv::minMaxIdx(blob_data2,&min2,&max2);
+    LOG(INFO)<<"min:"<<min2<<"; max:"<<max2;
     LOG(INFO) << "End of Debug.";
-    //solver->Solve();
-  }
+
   LOG(INFO) << "Optimization Done.";
   return 0;
 }
