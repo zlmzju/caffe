@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import caffe
-import timeit
+from time import clock
 
 # take an array of shape (n, height, width) or (n, height, width, channels)
 # and visualize each (height, width) thing in a grid of size approx. sqrt(n) by sqrt(n)
@@ -19,7 +19,7 @@ def vis_square(data, padsize=1, padval=0):
     data = data.reshape((n, n) + data.shape[1:]).transpose((0, 2, 1, 3) + tuple(range(4, data.ndim + 1)))
     data = data.reshape((n * data.shape[1], n * data.shape[3]) + data.shape[4:])
     plt.imshow(data)
-    
+    plt.draw()
 
 def load_data(filename,W,H):
     transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
@@ -45,7 +45,7 @@ IMAGE_FILE =caffe_root+'examples/images/cat.jpg'
 W=500
 H=500
 load_data(IMAGE_FILE,W,H)
-out=net.forward()
+%timeit net.forward()
 data = net.blobs['data'].data[0,:]
 map = net.blobs['map'].data[0,:]
 
@@ -59,3 +59,4 @@ plt.figure(1)
 plt.imshow(im)
 plt.figure(2)
 vis_square(map)
+plt.draw()
