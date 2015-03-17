@@ -163,7 +163,7 @@ int train() {
     LOG(INFO)<<"inputmap, "<<"num:"<<num2<<" channel:"<<channel2<<" rows:"<<imrows2<<"; cols:"<<imcols2;
     Mat blob_data2=Mat::zeros(imrows2,imcols2,CV_64FC1);
 
-    for (int c = 0; c < 1; ++c) {
+    for (int c = 0; c < channel2; ++c) {
       for (int h = 0; h < imrows2; ++h) {
        	for (int w = 0; w < imcols2;++w) {
           blob_data2.at<double>(h,w)=*(feature_blob2->mutable_cpu_data() + feature_blob2->offset(n,c,h,w));

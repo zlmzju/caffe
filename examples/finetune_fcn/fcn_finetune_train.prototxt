@@ -517,27 +517,11 @@ layers
 	name: 'conv8_finetune' 
 	type: CONVOLUTION 
 	bottom: 'fc7' 
-	top: 'conv8'
-	blobs_lr: 0 #1
-	blobs_lr: 0 #2 
-	weight_decay: 0 #1 
-	weight_decay: 0
-	convolution_param 
-	{ 
-		engine: CAFFE 
-		num_output: 1 
-		kernel_size: 1 
-	} 
-}
-#layer 19 convolution, turn each value 'x' to '1-x'
-layers 
-{ 
-	name: 'turn_finetune' 
-	type: CONVOLUTION 
-	bottom: 'conv8' 
 	top: 'score'
-	blobs_lr: 0 
-	blobs_lr: 0 
+	blobs_lr: 1
+	blobs_lr: 2 
+	weight_decay: 1 
+	weight_decay: 0
 	convolution_param 
 	{ 
 		engine: CAFFE 
@@ -554,6 +538,8 @@ layers
 	top: 'bigscore'
 	blobs_lr: 0 
 	blobs_lr: 0
+	weight_decay: 0 #1 
+	weight_decay: 0
 	convolution_param 
 	{ 
 		num_output: 1
@@ -570,12 +556,26 @@ layers
 	bottom: 'data' 
 	top: 'map' 
 }
-# #layer 21 loss
+layers
+{
+  type:FLATTEN
+  name: 'flat'
+  bottom: 'map'
+  top: 'flatmap'
+}
+layers
+{
+  type:SOFTMAX
+  name: 'softmax'
+  bottom: 'flatmap'
+  top: 'outmap'
+}
+#layer 21 loss
 layers 
 {
   name: "loss"
   type: EUCLIDEAN_LOSS
-  bottom: "map"
+  bottom: "outmap"
   bottom: "inputmap"
   top: "loss"
 }

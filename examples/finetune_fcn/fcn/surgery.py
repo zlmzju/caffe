@@ -35,20 +35,20 @@ caffe_root = '/home/liming/project/caffe/'  # this file is expected to be in {ca
 MODEL_FILE = 'fcn-32s-pascal-origin.prototxt'
 PRETRAINED = 'fcn-32s-pascal-origin.caffemodel'
 caffe.set_mode_gpu()
-net = caffe.Classifier(MODEL_FILE, PRETRAINED,
-                       caffe.TEST)
+net = caffe.Classifier(MODEL_FILE, PRETRAINED,caffe.TEST)
+print('\nblobs')
 print [(k, v.data.shape) for k, v in net.blobs.items()]
+print('\nparams')
 print [(k, v[0].data.shape) for k, v in net.params.items()]
 
 NEWMODEL_FILE = 'finetune_fcn.prototxt'
 finetune_net = caffe.Classifier(NEWMODEL_FILE, PRETRAINED,
                        caffe.TEST)
-
+print('\nparams')
 print [(k, v[0].data.shape) for k, v in finetune_net.params.items()]
-finetune_net.params['conv8_finetune'][0].data.flat=net.params['score-fr'][0].data[0,:].flat
-finetune_net.params['conv8_finetune'][1].data.flat=net.params['score-fr'][1].data[0].flat
-finetune_net.params['turn_finetune'][0].data[0]=-1
-finetune_net.params['turn_finetune'][1].data[0]=1
-finetune_net.params['deconv_finetune'][0].data.flat=net.params['upsample'][0].data[0,:].flat
-finetune_net.params['deconv_finetune'][1].data.flat=net.params['upsample'][1].data[0].flat
+
+finetune_net.params['conv8_finetune'][0].data[0,:]=-0.05*net.params['score-fr'][0].data[0,:]
+finetune_net.params['conv8_finetune'][1].data[0]=1+net.params['score-fr'][1].data[0]
+finetune_net.params['deconv_finetune'][0].data[0,:]=net.params['upsample'][0].data[0,0,:]
+finetune_net.params['deconv_finetune'][1].data[0]=net.params['upsample'][1].data[0]
 finetune_net.save('finetune_net.caffemodel')

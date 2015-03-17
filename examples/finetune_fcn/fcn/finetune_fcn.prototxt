@@ -499,27 +499,11 @@ layers
 	name: 'conv8_finetune' 
 	type: CONVOLUTION 
 	bottom: 'fc7' 
-	top: 'conv8'
+	top: 'score'
 	blobs_lr: 1 
 	blobs_lr: 2 
 	weight_decay: 1 
 	weight_decay: 0
-	convolution_param 
-	{ 
-		engine: CAFFE 
-		num_output: 1 
-		kernel_size: 1 
-	} 
-}
-#layer 19 convolution, turn each value 'x' to '1-x'
-layers 
-{ 
-	name: 'turn_finetune' 
-	type: CONVOLUTION 
-	bottom: 'conv8' 
-	top: 'score'
-	blobs_lr: 0 
-	blobs_lr: 0 
 	convolution_param 
 	{ 
 		engine: CAFFE 

@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import caffe
-from time import clock
+#from time import clock
 
 # take an array of shape (n, height, width) or (n, height, width, channels)
 # and visualize each (height, width) thing in a grid of size approx. sqrt(n) by sqrt(n)
@@ -33,21 +33,25 @@ def load_data(filename,W,H):
 # Make sure that caffe is on the python path:
 caffe_root = '/home/liming/project/caffe/'  # this file is expected to be in {caffe_root}/examples
 
+MODEL_FILE = 'fcn-32s-pascal-origin.prototxt'
+PRETRAINED = 'fcn-32s-pascal-origin.caffemodel'
+
 NEWMODEL_FILE = 'finetune_fcn.prototxt'
 NEWPRETRAINED = 'finetune_net.caffemodel'
+
 caffe.set_mode_gpu()
 net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
                        caffe.TEST)
 
 print [(k, v[0].data.shape) for k, v in net.params.items()]
-
-IMAGE_FILE =caffe_root+'examples/images/dog_cat.jpg'
+IMAGE_FILE =caffe_root+'examples/images/cat.jpg'
+IMAGE_FILE1 ='/home/liming/project/dataset/JPEGImages/000032.jpg'
 W=500
 H=500
 load_data(IMAGE_FILE,W,H)
 out=net.forward()
 data = net.blobs['data'].data[0,:]
-map = net.blobs['map'].data[0,0,:]
+map = net.blobs['map'].data[0,:]
 im=np.zeros([W,H,3])
 im[:,:,0]=data[2,:,:]
 im[:,:,1]=data[1,:,:]
@@ -57,5 +61,5 @@ im/=im.max()
 plt.figure(1)
 plt.imshow(im)
 plt.figure(2)
-plt.imshow(map)
+plt.imshow(map[0,:])
 plt.draw()

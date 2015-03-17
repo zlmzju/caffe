@@ -1,50 +1,9 @@
 name: 'FCN'
-force_backward: true
-#layer 1 data and map
-layers 
-{
-  name: "data"
-  type: MEMORY_DATA
-  top: "data"
-  top: "label"
-  memory_data_param 
-  {
-    batch_size: 1
-    channels: 3
-    height: 500
-    width: 500
-  }
-  transform_param 
-  {
-    crop_size: 500
-    mirror: false
-  }
-}
-# layers 
-# {
-  # name: "data1"
-  # type: DATA
-  # top: "data"
-  # # top: "hello"
-  # data_param {
-    # source: "examples/fcn/db_files_new/data_voc_500_500_test_path"
-    # batch_size: 1
-    # mirror: false
-  # }
-  # include: { phase: TEST }
-# }
-# layers {
-  # name: "data2"
-  # type: DATA
-  # top: "map"
-  # # top: "world"
-  # data_param {
-    # source: "examples/fcn/label_voc_500_500/test_label_leveldb"
-    # batch_size: 1
-    # mirror: false
-  # }
-  # include: { phase: TEST }
-# }
+input:'data'
+input_dim:1
+input_dim:3
+input_dim:500
+input_dim:500
 #layer 2 convolution+RELU
 layers 
 { 

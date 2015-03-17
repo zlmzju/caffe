@@ -24,14 +24,14 @@ def process_image(filelist,M,N):
 def process_map(filelist,M,N):
     with open(filelist) as f:
         content = f.readlines()
-    inputMap=np.zeros([len(content),1,M,N]);
+    inputMap=np.zeros([len(content),M*N,1,1]);
     idx=0
     for string in content:
         filename='/home/liming/project/dataset/label/'+string[0:10]
         image=cv2.imread(filename,0)
         image=cv2.resize(image,(M,N))
         image[image>0]=1
-        inputMap[idx,:]=image
+        inputMap[idx,:].flat=image.flat
         idx=idx+1
     return inputMap
 
