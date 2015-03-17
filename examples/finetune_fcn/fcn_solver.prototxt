@@ -1,13 +1,14 @@
 # The train/test net protocol buffer definition
+#net: "test.prototxt"
 net: "fcn_finetune_train.prototxt"
 test_iter: 1
 test_interval: 1000
-base_lr: 1
+base_lr: 0.000001
 lr_policy: "step"
-gamma: 0.1
-stepsize: 100
+gamma: 0.5
+stepsize: 200
 display: 10
-max_iter: 10000
+max_iter: 50000
 momentum: 0.99
 weight_decay: 0
 snapshot: 1000

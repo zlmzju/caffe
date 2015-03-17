@@ -6,7 +6,8 @@ import numpy as np
 import cv2
 def process_image(filelist,M,N):
     with open(filelist) as f:
-        content = f.readlines()
+        content1 = f.readlines()
+    content=content1#[0:10]
     imageData=np.zeros([len(content),3,M,N]);
     idx=0
     for string in content:
@@ -15,7 +16,7 @@ def process_image(filelist,M,N):
         transformer.set_transpose('data', (2,0,1))
         transformer.set_mean('data', np.array([104.00698793,  116.66876762,  122.67891434])) # mean pixel
         transformer.set_raw_scale('data', 255)  # the reference model operates on images in [0,255] range instead of [0,1]
-        transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
+#        transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
         image=transformer.preprocess('data', caffe.io.load_image(filename))
         imageData[idx,:]=image
         idx=idx+1
@@ -23,15 +24,16 @@ def process_image(filelist,M,N):
     
 def process_map(filelist,M,N):
     with open(filelist) as f:
-        content = f.readlines()
-    inputMap=np.zeros([len(content),M*N,1,1]);
+        content2 = f.readlines()
+    content=content2#[0:10]
+    inputMap=np.zeros([len(content),1,M,N]);
     idx=0
     for string in content:
         filename='/home/liming/project/dataset/label/'+string[0:10]
         image=cv2.imread(filename,0)
         image=cv2.resize(image,(M,N))
         image[image>0]=1
-        inputMap[idx,:].flat=image.flat
+        inputMap[idx,:]=image
         idx=idx+1
     return inputMap
 

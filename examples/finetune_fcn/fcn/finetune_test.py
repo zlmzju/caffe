@@ -26,9 +26,9 @@ def load_data(filename,W,H):
     transformer.set_transpose('data', (2,0,1))
     transformer.set_mean('data', np.load(caffe_root + 'python/caffe/imagenet/ilsvrc_2012_mean.npy').mean(1).mean(1)) # mean pixel
     transformer.set_raw_scale('data', 255)  # the reference model operates on images in [0,255] range instead of [0,1]
-    transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
+#    transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
     net.blobs['data'].reshape(1,3,W,H)
-    net.blobs['data'].data[...] = transformer.preprocess('data', caffe.io.load_image(IMAGE_FILE))
+    net.blobs['data'].data[...] = transformer.preprocess('data', caffe.io.load_image(filename))
 
 # Make sure that caffe is on the python path:
 caffe_root = '/home/liming/project/caffe/'  # this file is expected to be in {caffe_root}/examples
@@ -37,29 +37,27 @@ MODEL_FILE = 'fcn-32s-pascal-origin.prototxt'
 PRETRAINED = 'fcn-32s-pascal-origin.caffemodel'
 
 NEWMODEL_FILE = 'finetune_fcn.prototxt'
+#NEWPRETRAINED = './fcn_iter_2000.caffemodel'
 NEWPRETRAINED = 'finetune_net.caffemodel'
-
 caffe.set_mode_gpu()
 net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
                        caffe.TEST)
 
 print [(k, v[0].data.shape) for k, v in net.params.items()]
 IMAGE_FILE =caffe_root+'examples/images/cat.jpg'
-IMAGE_FILE1 ='/home/liming/project/dataset/JPEGImages/000032.jpg'
+IMAGE_FILE1 ='/home/liming/project/dataset/JPEGImages/000033.jpg'
 W=500
 H=500
 load_data(IMAGE_FILE,W,H)
 out=net.forward()
 data = net.blobs['data'].data[0,:]
-map = net.blobs['map'].data[0,:]
+map = net.blobs['map'].data[0,0,:]
 im=np.zeros([W,H,3])
-im[:,:,0]=data[2,:,:]
-im[:,:,1]=data[1,:,:]
-im[:,:,2]=data[0,:,:]
+im=data.transpose((1,2,0))
 im-=im.min()
 im/=im.max()
 plt.figure(1)
 plt.imshow(im)
 plt.figure(2)
-plt.imshow(map[0,:])
+plt.imshow(map)
 plt.draw()

@@ -443,9 +443,9 @@ layers
 	top: 'fc6' 
 	name: 'fc6' 
 	type: CONVOLUTION
-	blobs_lr: 0 #1
-	blobs_lr: 0 #2 
-	weight_decay: 0 #1 
+	blobs_lr: 1
+	blobs_lr: 2 
+	weight_decay: 1 
 	weight_decay: 0
 	convolution_param 
 	{ 
@@ -481,9 +481,9 @@ layers
 	top: 'fc7' 
 	name: 'fc7' 
 	type: CONVOLUTION
-	blobs_lr: 0 #1
-	blobs_lr: 0 #2 
-	weight_decay: 0 #1 
+	blobs_lr: 1
+	blobs_lr: 2 
+	weight_decay: 1 
 	weight_decay: 0
 	convolution_param 
 	{ 
@@ -518,9 +518,9 @@ layers
 	type: CONVOLUTION 
 	bottom: 'fc7' 
 	top: 'score'
-	blobs_lr: 1
-	blobs_lr: 2 
-	weight_decay: 1 
+	blobs_lr: 0 #1
+	blobs_lr: 0 #2 
+	weight_decay: 0 #1 
 	weight_decay: 0
 	convolution_param 
 	{ 
@@ -556,26 +556,12 @@ layers
 	bottom: 'data' 
 	top: 'map' 
 }
-layers
-{
-  type:FLATTEN
-  name: 'flat'
-  bottom: 'map'
-  top: 'flatmap'
-}
-layers
-{
-  type:SOFTMAX
-  name: 'softmax'
-  bottom: 'flatmap'
-  top: 'outmap'
-}
 #layer 21 loss
 layers 
 {
   name: "loss"
   type: EUCLIDEAN_LOSS
-  bottom: "outmap"
+  bottom: "map"
   bottom: "inputmap"
   top: "loss"
 }
