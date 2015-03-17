@@ -14,8 +14,8 @@ void EuclideanLossLayer<Dtype>::Reshape(
   CHECK_EQ(bottom[0]->count(1), bottom[1]->count(1))
       << "Inputs must have the same dimension.";
   diff_.ReshapeLike(*bottom[0]);
-  const Dtype* log=bottom[0]->cpu_data();
-  LOG(INFO)<<"Debug: "<<log[0]<<" "<<log[100];
+  //const Dtype* log=bottom[0]->cpu_data();
+  //LOG(INFO)<<"Debug: "<<log[0]<<" "<<log[100];
 }
 
 template <typename Dtype>
