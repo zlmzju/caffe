@@ -74,7 +74,7 @@ PY$(PROJECT)_HXX := include/$(PROJECT)/python_layer.hpp
 # MAT$(PROJECT)_SRC is the matlab wrapper for $(PROJECT)
 MAT$(PROJECT)_SRC := matlab/$(PROJECT)/mat$(PROJECT).cpp
 ifneq ($(MATLAB_DIR),)
-	MAT_SO_EXT := mexa64 $(shell $(MATLAB_DIR)/bin/mexext)
+	MAT_SO_EXT := $(shell $(MATLAB_DIR)/bin/mexext)
 endif
 MAT$(PROJECT)_SO := matlab/$(PROJECT)/$(PROJECT).$(MAT_SO_EXT)
 

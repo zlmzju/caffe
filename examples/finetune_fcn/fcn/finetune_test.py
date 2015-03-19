@@ -49,7 +49,7 @@ MODEL_FILE = 'fcn-32s-pascal-origin.prototxt'
 PRETRAINED = 'fcn-32s-pascal-origin.caffemodel'
 
 NEWMODEL_FILE = 'finetune_fcn.prototxt'
-NEWPRETRAINED = './fcn_iter_50000.caffemodel'
+NEWPRETRAINED = './surgery_net.caffemodel'
 #NEWPRETRAINED = 'finetune_net.caffemodel'
 caffe.set_mode_gpu()
 net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
@@ -57,4 +57,10 @@ net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
 
 print [(k, v[0].data.shape) for k, v in net.params.items()]
 IMAGE_FILE =caffe_root+'examples/images/cat.jpg'
-map=load_data('/home/liming/project/dataset/VOC/JPEGImages/000032.jpg')
+map=load_data(IMAGE_FILE);#'/home/liming/project/dataset/VOC/JPEGImages/000033.jpg')
+
+map=map-map.min()
+map=map/map.max()
+map=np.ceil(map*255)
+plt.imshow(map)
+plt.imsave('map.png',map,cmap='gray')

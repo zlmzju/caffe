@@ -40,22 +40,22 @@ def process_map(imageDir,filelist,M,N):
 
 M=500
 N=500
-#file_dir='/home/liming/project/dataset/VOC/'
-#trainData=process_image(file_dir+'JPEGImages/',file_dir+'script/traindata.txt' ,M,N)
-#trainMap=process_map(file_dir+'JPEGImages/',file_dir+'script/trainlabel.txt',M,N)
+file_dir='/home/liming/project/dataset/VOC/'
+trainData=process_image(file_dir+'JPEGImages/',file_dir+'script/traindata.txt' ,M,N)
+trainMap=process_map(file_dir+'JPEGImages/',file_dir+'script/trainlabel.txt',M,N)
+
+testData=process_image(file_dir+'JPEGImages/',file_dir+'script/testdata.txt' ,M,N)
+testMap=process_map(file_dir+'JPEGImages/',file_dir+'script/testlabel.txt',M,N)
+#file_dir='/home/liming/project/dataset/MSRA/MSRA10K_Imgs_GT/'
+#trainData=process_image(file_dir,file_dir+'trainImage.txt' ,M,N)
+#trainMap=process_map(file_dir,file_dir+'trainMap.txt',M,N)
 #
-#testData=process_image(file_dir+'JPEGImages/',file_dir+'script/testdata.txt' ,M,N)
-#testMap=process_map(file_dir+'JPEGImages/',file_dir+'script/testlabel.txt',M,N)
-file_dir='/home/liming/project/dataset/MSRA/MSRA10K_Imgs_GT/'
-trainData=process_image(file_dir,file_dir+'trainImage.txt' ,M,N)
-trainMap=process_map(file_dir,file_dir+'trainMap.txt',M,N)
+#testData=process_image(file_dir,file_dir+'testImage.txt' ,M,N)
+#testMap=process_map(file_dir,file_dir+'testMap.txt',M,N)
 
-testData=process_image(file_dir,file_dir+'testImage.txt' ,M,N)
-testMap=process_map(file_dir,file_dir+'testMap.txt',M,N)
-
-with h5py.File(os.path.dirname(__file__) + '/train_MSRA.h5', 'w') as f:
+with h5py.File(os.path.dirname(__file__) + '/train.h5', 'w') as f:
     f['data'] = trainData
     f['inputmap'] = trainMap
-with h5py.File(os.path.dirname(__file__) + '/test_MSRA.h5', 'w') as f:
+with h5py.File(os.path.dirname(__file__) + '/test.h5', 'w') as f:
     f['data'] = testData
     f['inputmap'] = testMap

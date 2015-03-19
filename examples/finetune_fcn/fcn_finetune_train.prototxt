@@ -514,7 +514,7 @@ layers
 #layer 18 convolution
 layers 
 { 
-	name: 'conv8_finetune' 
+	name: 'score-fr' 
 	type: CONVOLUTION 
 	bottom: 'fc7' 
 	top: 'score'
@@ -526,7 +526,7 @@ layers
 	{ 
 		engine: CAFFE 
 		num_output: 1 
-		kernel_size: 1 
+		kernel_size: 21 
 	} 
 }
 #layer 19 deconvolution upsample

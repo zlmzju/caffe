@@ -42,13 +42,12 @@ print('\nparams')
 print [(k, v[0].data.shape) for k, v in net.params.items()]
 
 NEWMODEL_FILE = 'finetune_fcn.prototxt'
-finetune_net = caffe.Classifier(NEWMODEL_FILE, PRETRAINED,
+NEWPRETRAINED = 'fcn-32s-pascal-origin.caffemodel'
+finetune_net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
                        caffe.TEST)
 print('\nparams')
 print [(k, v[0].data.shape) for k, v in finetune_net.params.items()]
 
-finetune_net.params['conv8_finetune'][0].data[0,:]=-0.05*net.params['score-fr'][0].data[0,:]
-finetune_net.params['conv8_finetune'][1].data[0]=1+net.params['score-fr'][1].data[0]
-finetune_net.params['deconv_finetune'][0].data[0,:]=net.params['upsample'][0].data[0,0,:]
-finetune_net.params['deconv_finetune'][1].data[0]=net.params['upsample'][1].data[0]
-finetune_net.save('finetune_net.caffemodel')
+finetune_net.params['deconv_finetune'][0].data[:,0,:,:]=-0.05*net.params['upsample'][0].data[:,0,:,:]
+finetune_net.params['deconv_finetune'][1].data[0]=1+net.params['upsample'][1].data[0]
+finetune_net.save('surgery_net.caffemodel')
