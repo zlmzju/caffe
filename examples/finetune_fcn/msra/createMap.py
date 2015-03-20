@@ -3,17 +3,17 @@ import numpy as np
 #import matplotlib.pyplot as plt
 import caffe
 import cv2
+import glob
 
 # Make sure that caffe is on the python path:
-caffe_root = '/home/liming/project/caffe/'  # this file is expected to be in {caffe_root}/examples
+caffe_root = ''  # this file is expected to be in {caffe_root}/examples
 W=500
 H=500
 batchSize=10
 # save map dir
-mapDir='./map/'
+MSRA_DIR='/home/liming/project/dataset/MSRA/MSRA1000/'
 # All file list
-IMAGE_FILE =caffe_root+'examples/images/cat.jpg'
-fileList=[IMAGE_FILE,'/home/liming/project/dataset/VOC/JPEGImages/000033.jpg','/home/liming/project/dataset/VOC/JPEGImages/000033.jpg','/home/liming/project/dataset/VOC/JPEGImages/000033.jpg','/home/liming/project/dataset/VOC/JPEGImages/000033.jpg','/home/liming/project/dataset/VOC/JPEGImages/000033.jpg','/home/liming/project/dataset/VOC/JPEGImages/000033.jpg','/home/liming/project/dataset/VOC/JPEGImages/000033.jpg','/home/liming/project/dataset/VOC/JPEGImages/000033.jpg',IMAGE_FILE,IMAGE_FILE,IMAGE_FILE,IMAGE_FILE,IMAGE_FILE,IMAGE_FILE,IMAGE_FILE,IMAGE_FILE,IMAGE_FILE,IMAGE_FILE,IMAGE_FILE]
+fileList=glob.glob(MSRA_DIR+'*.jpg')
 fileNum=len(fileList)
 fileSize=np.zeros((batchSize,2),dtype=np.int)
 imgData=np.zeros((batchSize,3,W,H))
@@ -32,19 +32,21 @@ for fileIdx in range(fileNum):
     (fileSize[fileIdx%batchSize,0],fileSize[fileIdx%batchSize,1],C)=img.shape   #C=3
     transformer = caffe.io.Transformer({'data': [fileNum,3,W,H]})
     transformer.set_transpose('data', (2,0,1))
-    transformer.set_mean('data', np.load(caffe_root + 'python/caffe/imagenet/ilsvrc_2012_mean.npy').mean(1).mean(1)) # mean pixel
+    transformer.set_mean('data', np.load('/home/liming/project/caffe/python/caffe/imagenet/ilsvrc_2012_mean.npy').mean(1).mean(1)) # mean pixel
     transformer.set_raw_scale('data', 255)
     imgData[fileIdx%batchSize,:,:]=transformer.preprocess('data',img)
     if (fileIdx%batchSize)==(batchSize-1):
         net.blobs['data'].data[...] = imgData
         net.forward()
+        print fileIdx
         for mapIdx in range(batchSize):
             map=net.blobs['map'].data[mapIdx,0,:,:]
             map=cv2.resize(map,(fileSize[mapIdx,1],fileSize[mapIdx,0]))
             map-=map.min()
             map/=map.max()
             map=np.ceil(map*255)
-            cv2.imwrite(mapDir+'%s.png'%fileList[mapIdx+fileIdx-batchSize+1][-7:-4],map)
+            globalIdx=mapIdx+fileIdx-batchSize+1
+            cv2.imwrite(MSRA_DIR+'%s.png'%fileList[globalIdx][len(MSRA_DIR):-4],map)
 
 
 #data = net.blobs['data'].data[1,:]
