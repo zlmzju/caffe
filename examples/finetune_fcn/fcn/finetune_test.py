@@ -48,9 +48,10 @@ caffe_root = '/home/liming/project/caffe/'  # this file is expected to be in {ca
 MODEL_FILE = 'fcn-32s-pascal-origin.prototxt'
 PRETRAINED = 'fcn-32s-pascal-origin.caffemodel'
 
-NEWMODEL_FILE = 'finetune_fcn.prototxt'
-NEWPRETRAINED = './surgery_net.caffemodel'
-#NEWPRETRAINED = 'finetune_net.caffemodel'
+#NEWMODEL_FILE = 'finetune_fcn.prototxt'
+#NEWPRETRAINED = './finetune_net.caffemodel'
+NEWMODEL_FILE = 'surgery_net.prototxt'
+NEWPRETRAINED = '../msra/surgery_net.caffemodel'
 caffe.set_mode_gpu()
 net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
                        caffe.TEST)
@@ -59,8 +60,8 @@ print [(k, v[0].data.shape) for k, v in net.params.items()]
 IMAGE_FILE =caffe_root+'examples/images/cat.jpg'
 map=load_data(IMAGE_FILE);#'/home/liming/project/dataset/VOC/JPEGImages/000033.jpg')
 
-map=map-map.min()
-map=map/map.max()
-map=np.ceil(map*255)
-plt.imshow(map)
-plt.imsave('map.png',map,cmap='gray')
+#map=map-map.min()
+#map=map/map.max()
+#map=np.ceil(map*255)
+#plt.imshow(map)
+#plt.imsave('map.png',map,cmap='gray')

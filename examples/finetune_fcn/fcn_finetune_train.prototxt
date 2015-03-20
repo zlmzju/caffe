@@ -7,7 +7,7 @@ layers {
   top: "inputmap"
   hdf5_data_param {
   	source: "hdf5_data/train_list.txt"
-    batch_size: 2
+    batch_size: 6
   }
   include: { phase: TRAIN }
 }
@@ -18,7 +18,7 @@ layers {
   top: "inputmap"
   hdf5_data_param {
   	source: "hdf5_data/test_list.txt"
-    batch_size: 2
+    batch_size: 6
   }
   include: { phase: TEST }
 }
@@ -518,15 +518,15 @@ layers
 	type: CONVOLUTION 
 	bottom: 'fc7' 
 	top: 'score'
-	blobs_lr: 0 #1
-	blobs_lr: 0 #2 
-	weight_decay: 0 #1 
+	blobs_lr: 0
+	blobs_lr: 0
+	weight_decay: 0 
 	weight_decay: 0
 	convolution_param 
 	{ 
 		engine: CAFFE 
-		num_output: 1 
-		kernel_size: 21 
+		num_output: 21 
+		kernel_size: 1 
 	} 
 }
 #layer 19 deconvolution upsample
@@ -538,7 +538,7 @@ layers
 	top: 'bigscore'
 	blobs_lr: 0 
 	blobs_lr: 0
-	weight_decay: 0 #1 
+	weight_decay: 1 
 	weight_decay: 0
 	convolution_param 
 	{ 

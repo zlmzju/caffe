@@ -496,7 +496,7 @@ layers
 #layer 18 convolution
 layers 
 { 
-	name: 'conv8_finetune' 
+	name: 'score-fr' 
 	type: CONVOLUTION 
 	bottom: 'fc7' 
 	top: 'score'
@@ -507,7 +507,7 @@ layers
 	convolution_param 
 	{ 
 		engine: CAFFE 
-		num_output: 1 
+		num_output: 21 
 		kernel_size: 1 
 	} 
 }

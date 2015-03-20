@@ -41,7 +41,7 @@ print [(k, v.data.shape) for k, v in net.blobs.items()]
 print('\nparams')
 print [(k, v[0].data.shape) for k, v in net.params.items()]
 
-NEWMODEL_FILE = 'finetune_fcn.prototxt'
+NEWMODEL_FILE = 'surgery_net.prototxt'
 NEWPRETRAINED = 'fcn-32s-pascal-origin.caffemodel'
 finetune_net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
                        caffe.TEST)

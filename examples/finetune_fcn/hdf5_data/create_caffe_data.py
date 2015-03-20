@@ -7,7 +7,7 @@ import cv2
 def process_image(imageDir,filelist,M,N):
     with open(filelist) as f:
         content1 = f.readlines()
-    content=content1#[0:10]
+    content=content1
     imageData=np.zeros([len(content),3,M,N]);
     idx=0
     for string in content:
@@ -25,7 +25,7 @@ def process_image(imageDir,filelist,M,N):
 def process_map(imageDir,filelist,M,N):
     with open(filelist) as f:
         content2 = f.readlines()
-    content=content2#[0:10]
+    content=content2
     inputMap=np.zeros([len(content),1,M,N]);
     idx=0
     for string in content:
@@ -42,10 +42,10 @@ M=500
 N=500
 file_dir='/home/liming/project/dataset/VOC/'
 trainData=process_image(file_dir+'JPEGImages/',file_dir+'script/traindata.txt' ,M,N)
-trainMap=process_map(file_dir+'JPEGImages/',file_dir+'script/trainlabel.txt',M,N)
+trainMap=process_map(file_dir+'label/',file_dir+'script/trainlabel.txt',M,N)
 
 testData=process_image(file_dir+'JPEGImages/',file_dir+'script/testdata.txt' ,M,N)
-testMap=process_map(file_dir+'JPEGImages/',file_dir+'script/testlabel.txt',M,N)
+testMap=process_map(file_dir+'label/',file_dir+'script/testlabel.txt',M,N)
 #file_dir='/home/liming/project/dataset/MSRA/MSRA10K_Imgs_GT/'
 #trainData=process_image(file_dir,file_dir+'trainImage.txt' ,M,N)
 #trainMap=process_map(file_dir,file_dir+'trainMap.txt',M,N)
