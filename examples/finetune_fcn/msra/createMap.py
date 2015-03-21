@@ -4,13 +4,14 @@ import numpy as np
 import caffe
 import cv2
 import glob
-
+import scipy.io as sio
 # Make sure that caffe is on the python path:
 caffe_root = ''  # this file is expected to be in {caffe_root}/examples
 W=500
 H=500
 batchSize=10
 # save map dir
+MAP_DIR='/home/liming/project/dataset/MSRA/MSRA1000_MAT/'
 MSRA_DIR='/home/liming/project/dataset/MSRA/MSRA1000/'
 # All file list
 fileList=glob.glob(MSRA_DIR+'*.jpg')
@@ -20,6 +21,7 @@ imgData=np.zeros((batchSize,3,W,H))
 # init the net from model    
 NEWMODEL_FILE = 'surgery_net.prototxt'
 NEWPRETRAINED = 'surgery_net.caffemodel'
+caffe.set_device(1)
 caffe.set_mode_gpu()
 net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,caffe.TEST)
 print [(k, v[0].data.shape) for k, v in net.params.items()]
@@ -42,12 +44,10 @@ for fileIdx in range(fileNum):
         for mapIdx in range(batchSize):
             map=net.blobs['map'].data[mapIdx,0,:,:]
             map=cv2.resize(map,(fileSize[mapIdx,1],fileSize[mapIdx,0]))
-            map-=map.min()
-            map/=map.max()
-            map=np.ceil(map*255)
             globalIdx=mapIdx+fileIdx-batchSize+1
-            cv2.imwrite(MSRA_DIR+'%s.png'%fileList[globalIdx][len(MSRA_DIR):-4],map)
-
+            sio.savemat(MAP_DIR+'%s.mat'%fileList[globalIdx][len(MSRA_DIR):-4],{'deepMap':map.astype(np.float64)})
+#            print MAP_DIR+'%s.mat'%fileList[globalIdx][len(MSRA_DIR):-4]
+#            print '%s'%fileList[globalIdx][len(MSRA_DIR):-4]
 
 #data = net.blobs['data'].data[1,:]
 #map = net.blobs['map'].data[1,0,:]

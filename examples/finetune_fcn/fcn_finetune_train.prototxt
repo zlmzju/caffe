@@ -518,9 +518,9 @@ layers
 	type: CONVOLUTION 
 	bottom: 'fc7' 
 	top: 'score'
-	blobs_lr: 0
-	blobs_lr: 0
-	weight_decay: 0 
+	blobs_lr: 0.0001
+	blobs_lr: 0.0002
+	weight_decay: 1 #0 
 	weight_decay: 0
 	convolution_param 
 	{ 
@@ -536,8 +536,8 @@ layers
 	name: 'deconv_finetune' 
 	bottom: 'score' 
 	top: 'bigscore'
-	blobs_lr: 0 
-	blobs_lr: 0
+	blobs_lr: 0.00001 
+	blobs_lr: 0.00002
 	weight_decay: 1 
 	weight_decay: 0
 	convolution_param 

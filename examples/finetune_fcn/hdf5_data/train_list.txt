@@ -1,1 +1,3 @@
-./hdf5_data/train.h5
+./hdf5_data/train1_MSRA.h5
+./hdf5_data/train2_MSRA.h5
+./hdf5_data/train3_MSRA.h5
