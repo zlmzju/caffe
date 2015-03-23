@@ -11,16 +11,16 @@ W=500
 H=500
 batchSize=10
 # save map dir
-MAP_DIR='/home/liming/project/dataset/MSRA/MSRA1000_MAT/'
-MSRA_DIR='/home/liming/project/dataset/MSRA/MSRA1000/'
+MAP_DIR='/home/liming/project/dataset/DUT/DUT_MAT/'
+IMG_DIR='/home/liming/project/dataset/DUT/DUT_image/'
 # All file list
-fileList=glob.glob(MSRA_DIR+'*.jpg')
+fileList=glob.glob(IMG_DIR+'*.jpg')
 fileNum=len(fileList)
 fileSize=np.zeros((batchSize,2),dtype=np.int)
 imgData=np.zeros((batchSize,3,W,H))
 # init the net from model    
 NEWMODEL_FILE = 'surgery_net.prototxt'
-NEWPRETRAINED = 'surgery_net.caffemodel'
+NEWPRETRAINED = './fcn_iter_39000.caffemodel'
 caffe.set_device(1)
 caffe.set_mode_gpu()
 net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,caffe.TEST)
@@ -45,9 +45,12 @@ for fileIdx in range(fileNum):
             map=net.blobs['map'].data[mapIdx,0,:,:]
             map=cv2.resize(map,(fileSize[mapIdx,1],fileSize[mapIdx,0]))
             globalIdx=mapIdx+fileIdx-batchSize+1
-            sio.savemat(MAP_DIR+'%s.mat'%fileList[globalIdx][len(MSRA_DIR):-4],{'deepMap':map.astype(np.float64)})
-#            print MAP_DIR+'%s.mat'%fileList[globalIdx][len(MSRA_DIR):-4]
-#            print '%s'%fileList[globalIdx][len(MSRA_DIR):-4]
+            sio.savemat(MAP_DIR+'%s.mat'%fileList[globalIdx][len(IMG_DIR):-4],{'deepMap':map.astype(np.float64)})
+            map2=map
+            map2-=map2.min()
+            map2/=map2.max()
+            map2=np.ceil(map2*255)
+            cv2.imwrite(IMG_DIR+'%s.png'%fileList[globalIdx][len(IMG_DIR):-4],map2)
 
 #data = net.blobs['data'].data[1,:]
 #map = net.blobs['map'].data[1,0,:]

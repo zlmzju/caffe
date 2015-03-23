@@ -172,7 +172,6 @@ int train() {
     }
     double min2=-1,max2=-1;
     cv::minMaxIdx(blob_data2,&min2,&max2);
-    LOG(INFO)<<"min:"<<min2<<"; max:"<<max2;
     LOG(INFO) << "End of Debug.";
 
   LOG(INFO) << "Optimization Done.";
