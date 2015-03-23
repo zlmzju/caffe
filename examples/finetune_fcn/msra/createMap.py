@@ -28,7 +28,7 @@ print [(k, v[0].data.shape) for k, v in net.params.items()]
 # forward to create output map
 net.blobs['data'].reshape(batchSize,3,W,H)
 # process each image
-for fileIdx in range(fileNum):
+for fileIdx in range((fileNum/10-2)*10,fileNum):
     fileName=fileList[fileIdx]
     img=caffe.io.load_image(fileName)
     (fileSize[fileIdx%batchSize,0],fileSize[fileIdx%batchSize,1],C)=img.shape   #C=3
@@ -37,37 +37,19 @@ for fileIdx in range(fileNum):
     transformer.set_mean('data', np.load('/home/liming/project/caffe/python/caffe/imagenet/ilsvrc_2012_mean.npy').mean(1).mean(1)) # mean pixel
     transformer.set_raw_scale('data', 255)
     imgData[fileIdx%batchSize,:,:]=transformer.preprocess('data',img)
-    if (fileIdx%batchSize)==(batchSize-1):
-        net.blobs['data'].data[...] = imgData
+    if (fileIdx==(fileNum-1)) or (fileIdx%batchSize)==(batchSize-1):
+        leftNum=(fileIdx%batchSize)+1
+        net.blobs['data'].reshape(leftNum,3,W,H)
+        net.blobs['data'].data[...] = imgData[0:leftNum,:,:]
         net.forward()
         print fileIdx
-        for mapIdx in range(batchSize):
+        for mapIdx in range(leftNum):
             map=net.blobs['map'].data[mapIdx,0,:,:]
             map=cv2.resize(map,(fileSize[mapIdx,1],fileSize[mapIdx,0]))
-            globalIdx=mapIdx+fileIdx-batchSize+1
+            globalIdx=mapIdx+fileIdx-leftNum+1
             sio.savemat(MAP_DIR+'%s.mat'%fileList[globalIdx][len(IMG_DIR):-4],{'deepMap':map.astype(np.float64)})
             map2=map
             map2-=map2.min()
             map2/=map2.max()
             map2=np.ceil(map2*255)
             cv2.imwrite(IMG_DIR+'%s.png'%fileList[globalIdx][len(IMG_DIR):-4],map2)
-
-#data = net.blobs['data'].data[1,:]
-#map = net.blobs['map'].data[1,0,:]
-#im=np.zeros([W,H,3])
-#im=data.transpose((1,2,0))
-#im-=im.min()
-#im/=im.max()
-#plt.figure(1)
-#plt.imshow(im)
-#plt.figure(2)
-#plt.imshow(map)
-#plt.draw()
-#map=load_data(img);#'/home/liming/project/dataset/VOC/JPEGImages/000033.jpg')
-#map2=cv2.resize(map,(img.shape[1],img.shape[0]))
-#
-#map=map-map.min()
-#map=map/map.max()
-#map=np.ceil(map*255)
-#plt.imshow(map,cmap='gray')
-##plt.imsave('map.png',map,cmap='gray')
