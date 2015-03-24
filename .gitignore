@@ -65,7 +65,7 @@ models/*
 *.binaryproto
 *leveldb
 *lmdb
-
+*.h5
 # build, distribute, and bins (+ python proto bindings)
 build
 .build_debug/*

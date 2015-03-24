@@ -1,0 +1,50 @@
+name: 'FCN'
+#layer 1 data and map
+layers {
+  name: "data"
+  type: HDF5_DATA
+  top: "data"
+  top: "inputmap"
+  hdf5_data_param {
+  	source: "hdf5_data/train_list.txt"
+    batch_size: 2
+  }
+  include: { phase: TRAIN }
+}
+layers {
+  name: "data"
+  type: HDF5_DATA
+  top: "data"
+  top: "inputmap"
+  hdf5_data_param {
+  	source: "hdf5_data/test_list.txt"
+    batch_size: 2
+  }
+  include: { phase: TEST }
+}
+layers
+{
+  type: CONVOLUTION
+  name: 'last_conv'
+  bottom: 'data'
+  top: 'map'
+  blobs_lr: 1
+  blobs_lr: 1
+  weight_decay: 1 
+  weight_decay: 0
+  convolution_param 
+  { 
+	num_output: 1 
+	kernel_size: 3
+	pad: 1
+  }
+}
+#layer 21 loss
+layers 
+{
+  name: "loss"
+  type: EUCLIDEAN_LOSS
+  bottom: "map"
+  bottom: "inputmap"
+  top: "loss"
+}
