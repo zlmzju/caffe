@@ -11,16 +11,17 @@ W=500
 H=500
 batchSize=10
 # save map dir
-MAP_DIR='/home/liming/project/dataset/DUT/DUT_MAT/'
-IMG_DIR='/home/liming/project/dataset/DUT/DUT_image/'
+DATASET='SOD'
+MAP_DIR='/mnt/ftp/project/Saliency/ICCV_EXP/Result/'+DATASET+'/DeepMap/V1/'
+IMG_DIR='/mnt/ftp/project/Saliency/ICCV_EXP/Dataset/'+DATASET+'/Images/'
 # All file list
 fileList=glob.glob(IMG_DIR+'*.jpg')
 fileNum=len(fileList)
 fileSize=np.zeros((batchSize,2),dtype=np.int)
 imgData=np.zeros((batchSize,3,W,H))
 # init the net from model    
-NEWMODEL_FILE = 'surgery_net.prototxt'
-NEWPRETRAINED = './fcn_iter_39000.caffemodel'
+NEWMODEL_FILE = './fcn_1024_sigmoid_deploy.prototxt'
+NEWPRETRAINED = './fcn_V4_MSRA9000.caffemodel'
 caffe.set_device(1)
 caffe.set_mode_gpu()
 net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,caffe.TEST)
@@ -28,7 +29,7 @@ print [(k, v[0].data.shape) for k, v in net.params.items()]
 # forward to create output map
 net.blobs['data'].reshape(batchSize,3,W,H)
 # process each image
-for fileIdx in range((fileNum/10-2)*10,fileNum):
+for fileIdx in range(fileNum):
     fileName=fileList[fileIdx]
     img=caffe.io.load_image(fileName)
     (fileSize[fileIdx%batchSize,0],fileSize[fileIdx%batchSize,1],C)=img.shape   #C=3
@@ -44,12 +45,12 @@ for fileIdx in range((fileNum/10-2)*10,fileNum):
         net.forward()
         print fileIdx
         for mapIdx in range(leftNum):
-            map=net.blobs['map'].data[mapIdx,0,:,:]
+            map=net.blobs['outmap'].data[mapIdx,0,:,:]
             map=cv2.resize(map,(fileSize[mapIdx,1],fileSize[mapIdx,0]))
             globalIdx=mapIdx+fileIdx-leftNum+1
-            sio.savemat(MAP_DIR+'%s.mat'%fileList[globalIdx][len(IMG_DIR):-4],{'deepMap':map.astype(np.float64)})
+            sio.savemat(MAP_DIR+'MAT/%s.mat'%fileList[globalIdx][len(IMG_DIR):-4],{'deepMap':map.astype(np.float64)})
             map2=map
             map2-=map2.min()
             map2/=map2.max()
             map2=np.ceil(map2*255)
-            cv2.imwrite(IMG_DIR+'%s.png'%fileList[globalIdx][len(IMG_DIR):-4],map2)
+            cv2.imwrite(MAP_DIR+'MAP/%s.png'%fileList[globalIdx][len(IMG_DIR):-4],map2)

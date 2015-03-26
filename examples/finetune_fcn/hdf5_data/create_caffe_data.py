@@ -5,18 +5,18 @@ import h5py
 import numpy as np
 import cv2
 batchSize=500
-def process(imageDir,filelist,prefix,M,N):
-    with open(filelist) as f:
-        content1 = f.readlines()
-    content=content1
+def process(imageDir,gtDir,prefix,M,N):
+    imageList=os.listdir(imageDir)
     imageData=np.zeros([batchSize,3,M,N]);
     inputMap=np.zeros([batchSize,1,M,N]);
     idx=0
-    for string in content:
-        filename=imageDir+string
+    for string in imageList:
+        filename=string
         if filename[-1]=='\n':
             filename=filename[0:-1]
         mapname=filename[0:-4]+'.png'
+        filename=imageDir+filename
+        mapname=gtDir+mapname
         #image
         transformer = caffe.io.Transformer({'data': (1,3,M,N)})
         transformer.set_transpose('data', (2,0,1))
@@ -31,15 +31,17 @@ def process(imageDir,filelist,prefix,M,N):
         #imageData and inputMap
         imageData[idx%batchSize,:]=image
         inputMap[idx%batchSize,:]=map
-        if (idx%batchSize)>=(batchSize-1):  #never reach >
-            with h5py.File(os.path.dirname(__file__) + '/'+prefix+'%d_MSRA.h5'%np.ceil(idx/batchSize), 'w') as f:
-                f['data'] = imageData
-                f['inputmap'] = inputMap
+        if (idx%batchSize)>=(batchSize-1) or idx==(len(imageList)-1):  #never reach >
+            print idx
+            with h5py.File(os.path.dirname(__file__) + '/'+prefix+'%d.h5'%np.ceil(idx/batchSize), 'w') as f:
+                f['data'] = imageData[0:idx%batchSize+1,:]
+                f['inputmap'] = inputMap[0:idx%batchSize+1,:]
         idx=idx+1
     return idx
     
 M=500
 N=500
-file_dir='/home/liming/project/dataset/MSRA/MSRA10K_Imgs_GT/'
-process(file_dir+'Imgs/',file_dir+'train.list','train',M,N)
-process(file_dir+'Imgs/',file_dir+'test.list','test',M,N)
+DATASET='DUT-OMRON'
+file_dir='/mnt/ftp/project/Saliency/ICCV_EXP/Dataset/'+DATASET+'/'
+listNum=process(file_dir+'Images/',file_dir+'Groundtruth/',DATASET+'/train_',M,N)
+#process(file_dir+'Imgs/',file_dir+'test.list','test',M,N)
