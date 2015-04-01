@@ -6,7 +6,7 @@ layers {
   top: "data"
   top: "inputmap"
   hdf5_data_param {
-  	source: "hdf5_data/train_list.txt"
+  	source: "./train_list.txt"
     batch_size: 4
   }
   include: { phase: TRAIN }
@@ -17,7 +17,7 @@ layers {
   top: "data"
   top: "inputmap"
   hdf5_data_param {
-  	source: "hdf5_data/test_list.txt"
+  	source: "../../hdf5_data/test_list.txt"
     batch_size: 4
   }
   include: { phase: TEST }
@@ -30,9 +30,9 @@ layers
 	top: 'conv1_1' 
 	name: 'conv1_1' 
 	type: CONVOLUTION
-	blobs_lr: 1
-	blobs_lr: 2 
-	weight_decay: 1 
+	blobs_lr: 0
+	blobs_lr: 0 
+	weight_decay: 0 
 	weight_decay: 0
 	convolution_param 
 	{ 
@@ -57,9 +57,9 @@ layers
 	top: 'conv1_2' 
 	name: 'conv1_2' 
 	type: CONVOLUTION
-	blobs_lr: 1
-	blobs_lr: 2 
-	weight_decay: 1 
+	blobs_lr: 0
+	blobs_lr: 0 
+	weight_decay: 0 
 	weight_decay: 0
 	convolution_param 
 	{ 
@@ -97,9 +97,9 @@ layers
 	bottom: 'pool1' 
 	top: 'conv2_1' 
 	type: CONVOLUTION
-	blobs_lr: 1
-	blobs_lr: 2 
-	weight_decay: 1 
+	blobs_lr: 0
+	blobs_lr: 0 
+	weight_decay: 0 
 	weight_decay: 0
 	convolution_param 
 	{ 
@@ -124,9 +124,9 @@ layers
 	top: 'conv2_2' 
 	name: 'conv2_2' 
 	type: CONVOLUTION
-	blobs_lr: 1
-	blobs_lr: 2 
-	weight_decay: 1 
+	blobs_lr: 0
+	blobs_lr: 0 
+	weight_decay: 0 
 	weight_decay: 0
 	convolution_param 
 	{ 
@@ -164,9 +164,9 @@ layers
 	top: 'conv3_1' 
 	name: 'conv3_1' 
 	type: CONVOLUTION
-	blobs_lr: 1
-	blobs_lr: 2 
-	weight_decay: 1 
+	blobs_lr: 0
+	blobs_lr: 0 
+	weight_decay: 0 
 	weight_decay: 0
 	convolution_param 
 	{ 
@@ -191,9 +191,9 @@ layers
 	top: 'conv3_2' 
 	name: 'conv3_2' 
 	type: CONVOLUTION
-	blobs_lr: 1
-	blobs_lr: 2 
-	weight_decay: 1 
+	blobs_lr: 0
+	blobs_lr: 0 
+	weight_decay: 0 
 	weight_decay: 0
 	convolution_param 
 	{ 
@@ -219,9 +219,9 @@ layers
 	top: 'conv3_3' 
 	name: 'conv3_3' 
 	type: CONVOLUTION
-	blobs_lr: 1
-	blobs_lr: 2 
-	weight_decay: 1 
+	blobs_lr: 0
+	blobs_lr: 0 
+	weight_decay: 0 
 	weight_decay: 0
 	convolution_param 
 	{ 
@@ -258,9 +258,9 @@ layers
 	top: 'conv4_1' 
 	name: 'conv4_1' 
 	type: CONVOLUTION
-	blobs_lr: 1
-	blobs_lr: 2 
-	weight_decay: 1 
+	blobs_lr: 0
+	blobs_lr: 0 
+	weight_decay: 0 
 	weight_decay: 0
 	convolution_param { 
 		engine: CAFFE 
@@ -283,9 +283,9 @@ layers
 	top: 'conv4_2' 
 	name: 'conv4_2' 
 	type: CONVOLUTION
-	blobs_lr: 1
-	blobs_lr: 2 
-	weight_decay: 1 
+	blobs_lr: 0
+	blobs_lr: 0 
+	weight_decay: 0 
 	weight_decay: 0
 	convolution_param 
 	{ 
@@ -309,9 +309,9 @@ layers {
 	top: 'conv4_3' 
 	name: 'conv4_3' 
 	type: CONVOLUTION
-	blobs_lr: 1
-	blobs_lr: 2 
-	weight_decay: 1 
+	blobs_lr: 0
+	blobs_lr: 0 
+	weight_decay: 0 
 	weight_decay: 0
 	convolution_param 
 	{ 
@@ -350,9 +350,9 @@ layers
 	top: 'conv5_1' 
 	name: 'conv5_1' 
 	type: CONVOLUTION
-	blobs_lr: 1
-	blobs_lr: 2 
-	weight_decay: 1 
+	blobs_lr: 0
+	blobs_lr: 0 
+	weight_decay: 0 
 	weight_decay: 0
 	convolution_param 
 	{ 
@@ -376,9 +376,9 @@ layers
 	top: 'conv5_2' 
 	name: 'conv5_2' 
 	type: CONVOLUTION
-	blobs_lr: 1
-	blobs_lr: 2 
-	weight_decay: 1 
+	blobs_lr: 0
+	blobs_lr: 0 
+	weight_decay: 0 
 	weight_decay: 0
 	convolution_param 
 	{ 
@@ -390,10 +390,10 @@ layers
 }
 layers 
 { 
-bottom: 'conv5_2' 
-top: 'conv5_2' 
-name: 'relu5_2' 
-type: RELU 
+	bottom: 'conv5_2' 
+	top: 'conv5_2' 
+	name: 'relu5_2' 
+	type: RELU 
 }
 
 #layer 15 convolution+RELU+pool
@@ -403,9 +403,9 @@ layers
 	top: 'conv5_3' 
 	name: 'conv5_3' 
 	type: CONVOLUTION
-	blobs_lr: 1
-	blobs_lr: 2 
-	weight_decay: 1 
+	blobs_lr: 0
+	blobs_lr: 0 
+	weight_decay: 0 
 	weight_decay: 0
 	convolution_param 
 	{ 
@@ -532,8 +532,8 @@ layers
 			std:0.01
 		}
 		bias_filler{
-                        type: "constant"	
-	      		value: 0
+            type: "constant"	
+			value: 0
 		}
 
 	} 
@@ -559,8 +559,8 @@ layers
 			std:0.01
 		}
 		bias_filler{
-                        type: "constant"	
-	      		value: 0
+			type: "constant"	
+			value: 0
 		}
 	} 
 }

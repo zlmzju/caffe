@@ -14,6 +14,8 @@ def process(imageDir,gtDir,prefix,M,N):
         filename=string
         if filename[-1]=='\n':
             filename=filename[0:-1]
+        if filename[-1]!='g':
+            continue
         mapname=filename[0:-4]+'.png'
         filename=imageDir+filename
         mapname=gtDir+mapname
@@ -41,7 +43,7 @@ def process(imageDir,gtDir,prefix,M,N):
     
 M=500
 N=500
-DATASET='DUT-OMRON'
+DATASET='ECSSD'
 file_dir='/mnt/ftp/project/Saliency/ICCV_EXP/Dataset/'+DATASET+'/'
 listNum=process(file_dir+'Images/',file_dir+'Groundtruth/',DATASET+'/train_',M,N)
 #process(file_dir+'Imgs/',file_dir+'test.list','test',M,N)

@@ -31,7 +31,7 @@ def load_data(filename,W=500,H=500):
     net.blobs['data'].data[...] = transformer.preprocess('data', caffe.io.load_image(filename))
     net.forward()
     data = net.blobs['data'].data[0,:]
-    map = net.blobs['map'].data[0,0,:]
+    map = net.blobs['outmap'].data[0,0,:]
     im=np.zeros([W,H,3])
     im=data.transpose((1,2,0))
     im-=im.min()
@@ -50,8 +50,8 @@ PRETRAINED = 'fcn-32s-pascal-origin.caffemodel'
 
 #NEWMODEL_FILE = 'finetune_fcn.prototxt'
 #NEWPRETRAINED = './finetune_net.caffemodel'
-NEWMODEL_FILE = 'surgery_net.prototxt'
-NEWPRETRAINED = '../fcn_iter_23000.caffemodel'
+NEWMODEL_FILE = '../msra/fcn_1024_sigmoid_deploy.prototxt'
+NEWPRETRAINED = '../msra/fcn_V4_MSRA9000.caffemodel'
 caffe.set_mode_gpu()
 net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
                        caffe.TEST)

@@ -11,8 +11,8 @@ W=500
 H=500
 batchSize=10
 # save map dir
-DATASET='SOD'
-MAP_DIR='/mnt/ftp/project/Saliency/ICCV_EXP/Result/'+DATASET+'/DeepMap/V1/'
+DATASET='MSRA1000'
+MAP_DIR='/mnt/ftp/project/Saliency/ICCV_EXP/Result/'+DATASET+'/DeepMap/V5/'
 IMG_DIR='/mnt/ftp/project/Saliency/ICCV_EXP/Dataset/'+DATASET+'/Images/'
 # All file list
 fileList=glob.glob(IMG_DIR+'*.jpg')
@@ -20,9 +20,11 @@ fileNum=len(fileList)
 fileSize=np.zeros((batchSize,2),dtype=np.int)
 imgData=np.zeros((batchSize,3,W,H))
 # init the net from model    
-NEWMODEL_FILE = './fcn_1024_sigmoid_deploy.prototxt'
-NEWPRETRAINED = './fcn_V4_MSRA9000.caffemodel'
-caffe.set_device(1)
+#NEWMODEL_FILE = './fcn_1024_sigmoid_deploy.prototxt'
+#NEWPRETRAINED = './fcn_V4_MSRA9000.caffemodel'
+NEWMODEL_FILE = '../fcn/fcn-8s/fcn-8s.prototxt'
+NEWPRETRAINED = '../fcn/fcn-8s/train_iter_26000.caffemodel'
+caffe.set_device(0)
 caffe.set_mode_gpu()
 net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,caffe.TEST)
 print [(k, v[0].data.shape) for k, v in net.params.items()]
