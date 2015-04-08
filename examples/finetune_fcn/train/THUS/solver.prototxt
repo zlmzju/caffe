@@ -6,7 +6,7 @@ display: 20
 average_loss: 20 #average loss of 20 iterations
 lr_policy: "fixed"
 # lr for unnormalized softmax -- see train_val definition
-base_lr: 1e-8
+base_lr: 1e-10
 # high momentum
 momentum: 0.99
 # no gradient accumulation

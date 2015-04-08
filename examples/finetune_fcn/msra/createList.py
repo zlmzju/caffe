@@ -19,5 +19,5 @@ for idx in range(len(filelist)):
 #    if app:
 #        namelist1.append(filelist1[idx1][len(file_dir1):len(filelist1[idx1])]+'\n')
 
-f=open('/home/liming/project/dataset/MSRA/MSRA10K_Imgs_GT/MSRA1000.list','w')
-f.writelines(namelist)
+#f=open('/home/liming/project/dataset/MSRA/MSRA10K_Imgs_GT/MSRA1000.list','w')
+#f.writelines(namelist)

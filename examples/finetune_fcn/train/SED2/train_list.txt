@@ -1,3 +1,10 @@
+../../hdf5_data/MSRA1000/train_0.h5
+../../hdf5_data/MSRA1000/train_1.h5
+../../hdf5_data/PASCAL-S/train_0.h5
+../../hdf5_data/PASCAL-S/train_1.h5
+../../hdf5_data/SOD/train_0.h5
+../../hdf5_data/ECSSD/train_0.h5
+../../hdf5_data/ECSSD/train_1.h5
 ../../hdf5_data/MSRA9000/train0_MSRA.h5
 ../../hdf5_data/MSRA9000/train1_MSRA.h5
 ../../hdf5_data/MSRA9000/train2_MSRA.h5
@@ -27,15 +34,3 @@
 ../../hdf5_data/DUT-OMRON/train_8.h5
 ../../hdf5_data/DUT-OMRON/train_9.h5
 ../../hdf5_data/DUT-OMRON/train_10.h5
-../../hdf5_data/THUR/train_0.h5
-../../hdf5_data/THUR/train_1.h5
-../../hdf5_data/THUR/train_2.h5
-../../hdf5_data/THUR/train_3.h5
-../../hdf5_data/THUR/train_4.h5
-../../hdf5_data/THUR/train_5.h5
-../../hdf5_data/THUR/train_6.h5
-../../hdf5_data/THUR/train_7.h5
-../../hdf5_data/THUR/train_8.h5
-../../hdf5_data/THUR/train_9.h5
-../../hdf5_data/THUR/train_10.h5
-../../hdf5_data/THUR/train_11.h5

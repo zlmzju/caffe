@@ -24,7 +24,7 @@ def process(imageDir,gtDir,prefix,M,N):
         transformer.set_transpose('data', (2,0,1))
         transformer.set_mean('data', np.array([104.00698793,  116.66876762,  122.67891434])) # mean pixel
         transformer.set_raw_scale('data', 255)  # the reference model operates on images in [0,255] range instead of [0,1]
-#        transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
+        transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
         image=transformer.preprocess('data', caffe.io.load_image(filename))
         #map
         map=cv2.imread(mapname,0)
@@ -43,7 +43,10 @@ def process(imageDir,gtDir,prefix,M,N):
     
 M=500
 N=500
-DATASET='ECSSD'
-file_dir='/mnt/ftp/project/Saliency/ICCV_EXP/Dataset/'+DATASET+'/'
-listNum=process(file_dir+'Images/',file_dir+'Groundtruth/',DATASET+'/train_',M,N)
-#process(file_dir+'Imgs/',file_dir+'test.list','test',M,N)
+datasets=['DUT-OMRON','ECSSD','MSRA1000','PASCAL-S','SED2','SOD']
+for DATASET in datasets:
+#DATASET='ECSSD'
+    file_dir='/mnt/ftp/project/Saliency/ICCV_EXP/Dataset/'+DATASET+'/'
+    listNum=process(file_dir+'Images/',file_dir+'Groundtruth/',DATASET+'/bgr_',M,N)
+    #process(file_dir+'Imgs/',file_dir+'test.list','test',M,N)
+
