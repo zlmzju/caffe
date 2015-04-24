@@ -10,11 +10,13 @@ import time
 caffe_root = ''  # this file is expected to be in {caffe_root}/examples
 W=500
 H=500
-batchSize=2
+batchSize=15
 # save map dir
-DATASET='SED2'
-MAP_DIR='/mnt/ftp/project/Saliency/ICCV_EXP/Result/'+DATASET+'/DeepMap/V7/'
-IMG_DIR='/mnt/ftp/project/Saliency/ICCV_EXP/Dataset/'+DATASET+'/Images/'
+DATASET='PASCAL-S'
+ROOTDIR='/mnt/ftp/project/Saliency/ICCV_EXP/'
+#ROOTDIR='/home/liming/project/dataset/'
+MAP_DIR=ROOTDIR+'Result/'+DATASET+'/DeepMap/V7/'
+IMG_DIR=ROOTDIR+'Dataset/'+DATASET+'/Images/'
 # All file list
 fileList=glob.glob(IMG_DIR+'*.jpg')
 fileNum=len(fileList)
@@ -26,8 +28,8 @@ imgData=np.zeros((batchSize,3,W,H))
 #NEWMODEL_FILE = './deploy.prototxt'
 #NEWPRETRAINED = '../train/'+DATASET+'/'+DATASET+'.caffemodel'
 NEWMODEL_FILE = './deploy.prototxt'
-NEWPRETRAINED = '../train/SED2/train_iter_2000.caffemodel'
-caffe.set_device(0)
+NEWPRETRAINED = '../train/PASCAL-S/train_iter_22000.caffemodel'
+caffe.set_device(1)
 caffe.set_mode_gpu()
 net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,caffe.TEST)
 print [(k, v[0].data.shape) for k, v in net.params.items()]
@@ -59,7 +61,6 @@ for fileIdx in range(fileNum):
         print fileIdx
         for mapIdx in range(leftNum):
             map=net.blobs['outmap'].data[mapIdx,0,:,:]
-            map[map<0.2]=0
             map=cv2.resize(map,(fileSize[mapIdx,1],fileSize[mapIdx,0]))
             globalIdx=mapIdx+fileIdx-leftNum+1
             sio.savemat(MAP_DIR+'MAT/%s.mat'%fileList[globalIdx][len(IMG_DIR):-4],{'deepMap':map.astype(np.float64)})

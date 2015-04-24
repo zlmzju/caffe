@@ -535,6 +535,13 @@ layers
 	bottom: 'data' 
 	top: 'map' 
 }
+layers
+{
+  type:SOFTMAX
+  name:'softmax'
+  bottom:'map'
+  top:'outmap'
+}
 # #layer 21 loss
 # layers 
 # {

@@ -507,7 +507,7 @@ layers
 	convolution_param 
 	{ 
 		engine: CAFFE 
-		num_output: 1024 
+		num_output: 1024
 		kernel_size: 1
 		weight_filler{
 			type:"gaussian"

@@ -121,4 +121,4 @@ layers { type: DECONVOLUTION name: 'upsample'
   blobs_lr: 0
   convolution_param { bias_term: false num_output: 21 kernel_size: 16 stride: 8 } }
 
-layers { type: CROP name: 'crop' bottom: 'bigscore' bottom: 'data' top: 'upscore' }
+layers { type: CROP name: 'crop' bottom: 'bigscore' bottom: 'data' top: 'outmap' }

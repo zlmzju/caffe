@@ -8,12 +8,12 @@ namelist=[]
 for idx in range(len(filelist)):
       namelist.append(filelist[idx][len(file_dir1)+2:-4])
 
-file_dir2=ROOTDIR+'Result/THUS/SaliencyMap/SVO/'
+file_dir2=ROOTDIR+'Result/THUS/SaliencyMap/DRFI/'
 namelist2=[]
 for idx in range(len(namelist)):
-    namelist2.append(namelist[idx][namelist[idx].find('_')+1:]+'_SVO.png')
+    namelist2.append(namelist[idx][namelist[idx].find('_')+1:]+'_DRFI.png')
 
-dest_dir=ROOTDIR+'Result/MSRA1000/SaliencyMap/SVO/'
+dest_dir=ROOTDIR+'Result/MSRA1000/SaliencyMap/DRFI/'
 for idx in range(len(namelist2)):
     oldfilename=file_dir2+namelist2[idx]
     newfilename=dest_dir+filelist[idx][len(file_dir1):-4]+'.png'
