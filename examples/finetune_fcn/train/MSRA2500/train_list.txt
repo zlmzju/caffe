@@ -1,0 +1,5 @@
+../../hdf5_data/MSRA2500/bgr_0.h5
+../../hdf5_data/MSRA2500/bgr_1.h5
+../../hdf5_data/MSRA2500/bgr_2.h5
+../../hdf5_data/MSRA2500/bgr_3.h5
+../../hdf5_data/MSRA2500/bgr_4.h5

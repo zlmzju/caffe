@@ -22,22 +22,22 @@ def vis_square(data, padsize=1, padval=0):
     plt.draw()
 
 
-NEWMODEL_FILE = './deploy.prototxt'
-NEWPRETRAINED = '../train/MSRA-DUT/train_iter_80000.caffemodel'
-caffe.set_device(1)
+NEWMODEL_FILE = '../train/MSRA9000/deploy.prototxt'
+NEWPRETRAINED = '../train/MSRA9000/models/train_iter_100000.caffemodel'
+caffe.set_device(0)
 caffe.set_mode_gpu()
 net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
                        caffe.TEST)
 
 #print [(k, v[0].data.shape) for k, v in net.params.items()]
 #print [(k, v.data.shape) for k, v in net.blobs.items()]
-filename='/mnt/ftp/project/Saliency/ICCV_EXP/Dataset/MSRA1000/Images/1_44_44379.jpg'
+filename='/mnt/ftp/project/Saliency/ICCV_EXP/Dataset/DUT-OMRON/Images/im010.jpg'
 #filename='/home/liming/project/dataset/VOC/JPEGImages/003778.jpg'
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
 transformer.set_transpose('data', (2,0,1))
 transformer.set_mean('data', np.array([ 104.00698793,  116.66876762,  122.67891434])) # mean pixel
 transformer.set_raw_scale('data', 255)  # the reference model operates on images in [0,255] range instead of [0,1]
-#    transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
+transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
 net.blobs['data'].data[...] = transformer.preprocess('data', caffe.io.load_image(filename))
 net.forward()
 data = net.blobs['data'].data[0,:]

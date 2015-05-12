@@ -43,10 +43,10 @@ def process(imageDir,gtDir,prefix,M,N):
     
 M=500
 N=500
-datasets=['DUT-OMRON','ECSSD','MSRA1000','PASCAL-S','SED2','SOD']
+datasets=['MSRA2500']
 for DATASET in datasets:
 #DATASET='ECSSD'
-    file_dir='/mnt/ftp/project/Saliency/ICCV_EXP/Dataset/'+DATASET+'/'
+    file_dir='/home/liming/project/dataset/MSRA/'+DATASET+'/'
     listNum=process(file_dir+'Images/',file_dir+'Groundtruth/',DATASET+'/bgr_',M,N)
     #process(file_dir+'Imgs/',file_dir+'test.list','test',M,N)
 

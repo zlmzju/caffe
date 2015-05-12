@@ -4,7 +4,6 @@ filelist=glob.glob(file_dir+'*.jpg')
 namelist=[]
 for idx in range(len(filelist)):
       namelist.append(filelist[idx]+'\n')
-               
 
 
 #file_dir1='/home/liming/project/dataset/MSRA/MSRA10K_Imgs_GT/Imgs/'

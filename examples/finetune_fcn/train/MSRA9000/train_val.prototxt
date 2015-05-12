@@ -514,7 +514,7 @@ layers
 #layer 18 convolution
 layers 
 { 
-	name: 'conv7' 
+	name: 'conv8' 
 	type: CONVOLUTION 
 	bottom: 'fc7' 
 	top: 'score'
@@ -525,7 +525,7 @@ layers
 	convolution_param 
 	{ 
 		engine: CAFFE 
-		num_output: 1
+		num_output: 1 
 		kernel_size: 1
 		weight_filler{
 			type:"gaussian"
@@ -544,7 +544,7 @@ layers
 	type: DECONVOLUTION 
 	name: 'deconv' 
 	bottom: 'score' 
-	top: 'bigscore'
+	top: 'bigmap'
 	blobs_lr: 1 
 	blobs_lr: 2
 	weight_decay: 1 
@@ -569,7 +569,7 @@ layers
 { 
 	type: CROP 
 	name: 'crop_finetune' 
-	bottom: 'bigscore' 
+	bottom: 'bigmap' 
 	bottom: 'data' 
 	top: 'map' 
 }

@@ -1,5 +1,6 @@
 ## General
-
+*.out
+*.shelve.*
 # Compiled Object files
 *.slo
 *.lo

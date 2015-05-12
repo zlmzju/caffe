@@ -1,0 +1,6 @@
+../../hdf5_data/PASCAL-S/train_0.h5
+../../hdf5_data/PASCAL-S/train_1.h5
+../../hdf5_data/SED2/train_0.h5
+../../hdf5_data/SOD/train_0.h5
+../../hdf5_data/ECSSD/train_0.h5
+../../hdf5_data/ECSSD/train_1.h5 

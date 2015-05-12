@@ -7,7 +7,7 @@ layers {
   top: "inputmap"
   hdf5_data_param {
   	source: "./train_list.txt"
-    batch_size: 4
+    batch_size: 6
   }
   include: { phase: TRAIN }
 }
@@ -18,7 +18,7 @@ layers {
   top: "inputmap"
   hdf5_data_param {
   	source: "./test_list.txt"
-    batch_size: 4
+    batch_size: 6
   }
   include: { phase: TEST }
 }

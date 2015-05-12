@@ -10,12 +10,12 @@ import time
 caffe_root = ''  # this file is expected to be in {caffe_root}/examples
 W=500
 H=500
-batchSize=15
+batchSize=10
 # save map dir
-DATASET='PASCAL-S'
+DATASET='MSRA1000'
 ROOTDIR='/mnt/ftp/project/Saliency/ICCV_EXP/'
 #ROOTDIR='/home/liming/project/dataset/'
-MAP_DIR=ROOTDIR+'Result/'+DATASET+'/DeepMap/V7/'
+MAP_DIR=ROOTDIR+'Result/'+DATASET+'/DeepMap/OurBR/'
 IMG_DIR=ROOTDIR+'Dataset/'+DATASET+'/Images/'
 # All file list
 fileList=glob.glob(IMG_DIR+'*.jpg')
@@ -23,12 +23,8 @@ fileNum=len(fileList)
 fileSize=np.zeros((batchSize,2),dtype=np.int)
 imgData=np.zeros((batchSize,3,W,H))
 # init the net from model    
-#NEWMODEL_FILE = './fcn_1024_sigmoid_deploy.prototxt'
-#NEWPRETRAINED = './fcn_V4_MSRA9000.caffemodel'
-#NEWMODEL_FILE = './deploy.prototxt'
-#NEWPRETRAINED = '../train/'+DATASET+'/'+DATASET+'.caffemodel'
-NEWMODEL_FILE = './deploy.prototxt'
-NEWPRETRAINED = '../train/PASCAL-S/train_iter_22000.caffemodel'
+NEWMODEL_FILE = '../train/MSRA9000/deploy.prototxt'
+NEWPRETRAINED = '../train/MSRA9000/models/train_iter_100000.caffemodel'
 caffe.set_device(1)
 caffe.set_mode_gpu()
 net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,caffe.TEST)
