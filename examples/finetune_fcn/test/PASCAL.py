@@ -10,4 +10,4 @@ for filename in contents:
     shutil.copyfile(srcImageName,dstImageName)
     srcMapName=srcDir+'Groundtruth/'+filename[0:-5]+'.png'
     dstMapName=dstDir+'Groundtruth/'+filename[0:-5]+'.png'
-    shutil.copyfile(srcMapName,dstMapName) 
+    shutil.copyfile(srcMapName,dstMapName)

@@ -58,7 +58,7 @@ print [(k, v[0].data.shape) for k, v in finetune_net.params.items()]
 finetune_net.params['deconv'][0].data.flat=upsample_filt(finetune_net.params['deconv'][0].data.shape[3])
 finetune_net.params['conv8'][0].data[0,:,:,:]=-0.05*net.params['score-fr'][0].data[0,:,:,:]
 finetune_net.params['conv8'][1].data[0]=1+net.params['score-fr'][1].data[0]
-finetune_net.save('surgery_net.caffemodel')
+#finetune_net.save('surgery_net.caffemodel')
 
 #test the net
 transformer = caffe.io.Transformer({'data': finetune_net.blobs['data'].data.shape})

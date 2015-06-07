@@ -23,7 +23,7 @@ def vis_square(data, padsize=1, padval=0):
 
 
 NEWMODEL_FILE = '../train/MSRA9000/deploy.prototxt'
-NEWPRETRAINED = '../train/MSRA9000/models/train_iter_100000.caffemodel'
+NEWPRETRAINED = '../train/MSRA9000/models0/train_iter_100000.caffemodel'
 caffe.set_device(0)
 caffe.set_mode_gpu()
 net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
@@ -50,6 +50,7 @@ map=map-map.min()
 map=map/map.max()
 plt.imshow(map,cmap='gray')
 plt.draw()
+
 
 #plt.imshow(net.params['conv1_1'][0].data[5,0,:])
 #vis_square(net.params['conv1_1'][0].data[:])

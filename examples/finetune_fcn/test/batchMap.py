@@ -15,8 +15,8 @@ all_start=time.clock()
 all_forward_time=0.0
 all_file_numbers=0
 # init the net from model    
-NEWMODEL_FILE = '../sal/deploy.prototxt'
-NEWPRETRAINED = '../sal/models/train_iter_40000.caffemodel'
+NEWMODEL_FILE = '../train/MSRA9000/deploy.prototxt'
+NEWPRETRAINED = '../train/MSRA9000/models1/train_iter_100000.caffemodel'
 caffe.set_device(1)
 caffe.set_mode_gpu()
 net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,caffe.TEST)
@@ -26,7 +26,7 @@ datasets=['DUT-OMRON','ECSSD','MSRA1000','PASCAL-S','SED2','SOD','THUR']#['DUT-O
 for DATASET in datasets:
     #DATASET='MSRA1000'
     ROOTDIR='/mnt/ftp/project/Saliency/ICCV_EXP/'
-    MAP_DIR=ROOTDIR+'Result/'+DATASET+'/DeepMap/OnlySal/'
+    MAP_DIR=ROOTDIR+'Result/'+DATASET+'/DeepMap/OurBR/'
     IMG_DIR=ROOTDIR+'Dataset/'+DATASET+'/Images/'
     # All file list
     fileList=glob.glob(IMG_DIR+'*.jpg')

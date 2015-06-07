@@ -25,7 +25,7 @@ def vis_square(data, padsize=1, padval=0):
 
 NEWMODEL_FILE = '../fcn/fcn-32s-pascal-origin.prototxt'
 NEWPRETRAINED = '../fcn/fcn-32s-pascal-origin.caffemodel'
-caffe.set_device(1)
+caffe.set_device(0)
 caffe.set_mode_gpu()
 net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
                        caffe.TEST)
@@ -33,12 +33,14 @@ net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
 #print [(k, v[0].data.shape) for k, v in net.params.items()]
 
 #filename='/mnt/ftp/temp/liming/test/tomato.jpg'
-filename='/home/liming/project/dataset/VOC/JPEGImages/003778.jpg'
+#filename='/home/liming/project/dataset/VOC/JPEGImages/003778.jpg'
+path='/mnt/ftp/datasets/VOT2014/vot/jogging/'
+filename=path+'00000026.jpg'
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
 transformer.set_transpose('data', (2,0,1))
 transformer.set_mean('data', np.array([ 104.00698793,  116.66876762,  122.67891434])) # mean pixel
 transformer.set_raw_scale('data', 255)  # the reference model operates on images in [0,255] range instead of [0,1]
-#    transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
+transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
 net.blobs['data'].data[...] = transformer.preprocess('data', caffe.io.load_image(filename))
 net.forward()
 data = net.blobs['data'].data[0,:]
@@ -54,7 +56,7 @@ for i in range(500):
         
 orig=cv2.imread(filename)
 outmap=cv2.resize(im2show,(orig.shape[1],orig.shape[0]))
-plt.imshow(im2show)
+plt.imshow(map[15,:,:])
 #plt.imsave('./test.png',outmap)
 #plt.imshow(im2show)#,cmap='gray')
 plt.draw()
