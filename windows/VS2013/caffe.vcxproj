@@ -349,6 +349,9 @@ cd %origin_dir%</Command>
     <ClInclude Include="..\..\include\caffe\util\upgrade_proto.hpp" />
     <ClInclude Include="..\..\include\caffe\vision_layers.hpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\caffe\proto\caffe.proto" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>

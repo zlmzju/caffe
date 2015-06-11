@@ -6,13 +6,14 @@ using namespace cv;
 int main()
 {
 	CNNFeature cnnFeature;
-	string imgName = "./examples/images/cat.jpg";
+	string imgName = "../examples/images/cat.jpg";
     Mat image = imread(imgName);
 	int maxSize=4096;
 	//test 1
 	float *feature=(float*)malloc(sizeof(float)*maxSize);
+	memset(feature, 0, maxSize);
 	int dim=cnnFeature.ExtractFeature(image,feature,maxSize);
-	printf("\n");
+	printf("\n%d: ",dim);
 	for(int i=0;i<10;i++)
 	{
 		printf("%4.2f\t",feature[i]);
@@ -21,8 +22,9 @@ int main()
 
 	//test 2
 	float *feature2=(float*)malloc(sizeof(float)*maxSize);
+	memset(feature2, 0, maxSize);
 	int dim2=cnnFeature.ExtractFeature(image,feature2,maxSize);
-	printf("\n");
+	printf("\n%d: ", dim);
 	for(int i=0;i<10;i++)
 	{
 		printf("%4.2f\t",feature2[i]);

@@ -11,7 +11,7 @@
 *.tlog
 *.pdb
 *.bsc
-
+*.exp
 # Compiled Dynamic libraries
 *.so
 *.dylib

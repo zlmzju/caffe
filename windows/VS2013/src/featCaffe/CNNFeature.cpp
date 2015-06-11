@@ -20,6 +20,7 @@ using namespace std;
 using namespace cv;
 using namespace boost;
 
+
 Net<float>  *net;
 CNNFeature::CNNFeature(string protofile, string caffemodel, int useGPU_ID) // init the caffe model with prototxt file
 {
@@ -35,16 +36,12 @@ CNNFeature::CNNFeature(string protofile, string caffemodel, int useGPU_ID) // in
 		Caffe::set_mode(Caffe::CPU);
 	}
 
-    // Set to TEST Phase
-    Caffe::set_phase(Caffe::TEST);
-
+	// Set to TEST Phase
+	Caffe::set_phase(Caffe::TEST);
     // Load net
 	net=new Net<float>(protofile);
     // Load pre-trained net (binary proto)
     net->CopyTrainedLayersFrom(caffemodel);
-
-	// Set to TEST Phase
-	Caffe::set_phase(Caffe::TEST);
 }
 CNNFeature::~CNNFeature()
 {
@@ -82,14 +79,15 @@ int CNNFeature::ExtractFeature(Mat &image,float *feature, int maxSize,string lay
 	//Feature
 	const boost::shared_ptr<Blob<float> > feature_blob = net->blob_by_name(layerName);	//1*
 	int dim_features = max(feature_blob->count(),maxSize);
-	const float* blob_data=feature_blob->mutable_cpu_data() + feature_blob->offset(0);	//data of batch 0
+	const float* blob_data=feature_blob->cpu_data() + feature_blob->offset(0);	//data of batch 0
 	
 	int memSize=sizeof(float)*dim_features;
-	//memset(feature,0,memSize);
+	memset(feature,0,memSize);
 	memcpy(feature,blob_data,memSize);
 	//for (int d = 0; d < dim_features; ++d) 
 	//{
 	//	feature[d]=blob_data[d];
 	//}
+	cout <<endl<<"Caffe:phase():"<< Caffe::phase()<<endl;
 	return dim_features;	//feature dimension
 }

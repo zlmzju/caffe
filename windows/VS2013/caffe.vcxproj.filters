@@ -345,4 +345,9 @@
       <UniqueIdentifier>{9a8bca9f-8bcc-40c3-8bb7-edf0509134c1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\caffe\proto\caffe.proto">
+      <Filter>source\proto</Filter>
+    </None>
+  </ItemGroup>
 </Project>
