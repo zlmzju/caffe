@@ -52,6 +52,12 @@ int CNNFeature::ExtractFeature(Mat &image,float *feature, int maxSize,string lay
 	{
 		return 0;
 	}
+	if (Caffe::phase() != Caffe::TEST)
+	{
+		// Set to TEST Phase
+		Caffe::set_phase(Caffe::TEST);
+		cout << endl << "Caffe:phase():" << Caffe::phase() << endl;
+	}
     // Set vector for image
     vector<cv::Mat> imageVector;
     imageVector.push_back(image);
@@ -88,6 +94,5 @@ int CNNFeature::ExtractFeature(Mat &image,float *feature, int maxSize,string lay
 	//{
 	//	feature[d]=blob_data[d];
 	//}
-	cout <<endl<<"Caffe:phase():"<< Caffe::phase()<<endl;
 	return dim_features;	//feature dimension
 }
