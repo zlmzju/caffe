@@ -498,6 +498,44 @@ class CropLayer : public Layer<Dtype> {
   int crop_h_, crop_w_;
 };
 
+template <typename Dtype>
+class GuidedFilterLayer : public Layer<Dtype> {
+ public:
+  explicit GuidedFilterLayer(const LayerParameter& param)
+      : Layer<Dtype>(param) {}
+  virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+      const vector<Blob<Dtype>*>& top);
+  virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
+      const vector<Blob<Dtype>*>& top);
+
+  virtual inline const char* type() const { return "GuidedFilter"; }
+  virtual inline int ExactNumBottomBlobs() const { return 2; }
+  virtual inline int ExactNumTopBlobs() const { return 1; }
+  virtual inline DiagonalAffineMap<Dtype> coord_map() {
+    return DiagonalAffineMap<Dtype>::identity(2);
+  }
+
+ protected:
+  virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      const vector<Blob<Dtype>*>& top);
+  virtual void Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+  virtual void Forward_gpu(const vector<Blob<Dtype>*>& bottom,
+      const vector<Blob<Dtype>*>& top);
+  virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
+      const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+
+  void MeanFilter(const Dtype* src, Dtype* dst);
+  int window_size_;
+  double epsilon_;
+  
+  //used for mean computation
+  Blob<Dtype> pool_input_;
+  Blob<Dtype> pool_output_;
+  vector<Blob<Dtype>*> pool_input_vec_;
+  vector<Blob<Dtype>*> pool_output_vec_;
+  shared_ptr<PoolingLayer<Dtype> > pool_layer_;
+};
 }  // namespace caffe
 
 #endif  // CAFFE_VISION_LAYERS_HPP_

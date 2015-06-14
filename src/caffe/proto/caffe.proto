@@ -261,7 +261,8 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 131 (last added: python_param)
+// LayerParameter next available layer-specific ID: 132 (last added:
+// guided_filter_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -333,6 +334,7 @@ message LayerParameter {
   optional TanHParameter tanh_param = 127;
   optional ThresholdParameter threshold_param = 128;
   optional WindowDataParameter window_data_param = 129;
+  optional GuidedFilterParameter guided_filter_param=131;
 }
 
 // Message that stores parameters used to apply transformation
@@ -948,4 +950,10 @@ message V0LayerParameter {
   optional uint32 concat_dim = 65 [default = 1];
 
   optional HDF5OutputParameter hdf5_output_param = 1001;
+}
+
+message GuidedFilterParameter
+{
+  optional uint32 window_size = 1 [default = 32];
+  optional float epsilon=2 [default=1e-8];
 }

@@ -33,8 +33,7 @@ net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
 #print [(k, v[0].data.shape) for k, v in net.params.items()]
 print('\nblobs')
 print [(k, v.data.shape) for k, v in net.blobs.items()]
-print('\nparams')
-print [(k, v[0].data.shape) for k, v in net.params.items()]
+
 path='/home/liming/project/iccv15/ICCV_EXP/Dataset/ECSSD/Images/'
 filename=path+'0007.jpg'
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})

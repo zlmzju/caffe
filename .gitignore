@@ -1,4 +1,6 @@
 ## General
+tags
+cscope.files
 *.out
 *.shelve.*
 # Compiled Object files

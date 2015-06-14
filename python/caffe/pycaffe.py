@@ -36,7 +36,8 @@ def _Net_params(self):
     """
     return OrderedDict([(name, lr.blobs)
                         for name, lr in zip(self._layer_names, self.layers)
-                        if len(lr.blobs) > 0])
+                       if len(lr.blobs) > 0])
+                        
 
 
 @property
