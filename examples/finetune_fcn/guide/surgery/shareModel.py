@@ -9,13 +9,13 @@ caffe.set_mode_gpu()
 net = caffe.Classifier(MODEL_FILE, PRETRAINED,caffe.TEST)
 print('\nblobs')
 print [(k, v.data.shape) for k, v in net.blobs.items()]
-print('\nparams')
-print [(k, v[0].data.shape) for k, v in net.params.items()]
+#print('\nparams')
+#print [(k, v[0].data.shape) for k, v in net.params.items()]
 
-#NEWMODEL_FILE = '../deploy.prototxt'
-#NEWPRETRAINED = PRETRAINED
-#finetune_net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
-#                       caffe.TEST)
+NEWMODEL_FILE = '../deploy.prototxt'
+NEWPRETRAINED = PRETRAINED
+finetune_net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
+                       caffe.TEST)
 #conv8=np.squeeze(finetune_net.params['conv8'][0].data)
 #print('\nparams')
 #print [(k, v[0].data.shape) for k, v in finetune_net.params.items()]
@@ -23,7 +23,7 @@ print [(k, v[0].data.shape) for k, v in net.params.items()]
 #finetune_net.params['conv8'][1].data.flat=net.params['conv8'][1].data.flat
 #finetune_net.params['deconv'][0].data.flat=net.params['deconv'][0].data.flat
 #finetune_net.params['deconv'][1].data.flat=net.params['deconv'][1].data.flat
-#finetune_net.save('../shareModel.caffemodel')
+#finetune_net.save('../guidedInitModel.caffemodel')
 
 
 ##test the net

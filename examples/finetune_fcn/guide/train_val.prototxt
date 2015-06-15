@@ -543,7 +543,7 @@ layer {
 #layer 1 in sibling 1 
 layer {
   name: "conv_edge1"
-  type: "Conv"
+  type: "Convolution"
   bottom: "data"
   top: "edge1"
   param {
@@ -583,7 +583,7 @@ layer {
 }
 layer {
   name: "conv_smooth1"
-  type: "Conv"
+  type: "Convolution"
   bottom: "guided_map"
   top: "sm_map1"
   param {

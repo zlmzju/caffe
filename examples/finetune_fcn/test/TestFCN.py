@@ -31,7 +31,8 @@ net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
                        caffe.TEST)
 
 #print [(k, v[0].data.shape) for k, v in net.params.items()]
-
+#print('\nparams')
+#print [(k, v[0].data.shape) for k, v in net.params.items()]
 #filename='/mnt/ftp/temp/liming/test/tomato.jpg'
 #filename='/home/liming/project/dataset/VOC/JPEGImages/003778.jpg'
 path='/mnt/ftp/datasets/VOT2014/vot/jogging/'

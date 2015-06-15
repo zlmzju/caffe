@@ -181,5 +181,6 @@ STUB_GPU(GuidedFilterLayer);
 #endif
 
 INSTANTIATE_CLASS(GuidedFilterLayer);
+REGISTER_LAYER_CLASS(GuidedFilter);
 
 }  // namespace caffe

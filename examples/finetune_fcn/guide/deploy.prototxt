@@ -1,4 +1,5 @@
 name: 'GuidedNet'
+#input layer in deploy.prototxt
 input: "data"
 input_dim: 1
 input_dim: 3
@@ -531,7 +532,7 @@ layer {
 #layer 1 in sibling 1 
 layer {
   name: "conv_edge1"
-  type: "Conv"
+  type: "Convolution"
   bottom: "data"
   top: "edge1"
   param {
@@ -571,7 +572,7 @@ layer {
 }
 layer {
   name: "conv_smooth1"
-  type: "Conv"
+  type: "Convolution"
   bottom: "guided_map"
   top: "sm_map1"
   param {
@@ -624,7 +625,6 @@ layer {
     engine: CAFFE
   }
 }
-
 #output the saliency map in (0,1)
 layer {
   name: "sigmoid"

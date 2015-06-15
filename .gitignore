@@ -1,6 +1,7 @@
 ## General
 tags
 cscope.files
+buildCtags.sh
 *.out
 *.shelve.*
 # Compiled Object files
