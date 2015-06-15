@@ -74,63 +74,83 @@ class GuidedFilterLayerTest : public MultiDeviceTest<TypeParam> {
     const int channels=1;
     const int height=5;
     const int width=5;
+    Dtype *bottom_I_data=NULL;
+    Dtype *bottom_p_data=NULL;
+    if(Caffe::mode()==Caffe::CPU)
+    {
+        bottom_I_data=blob_bottom_I_->mutable_cpu_data();
+        bottom_p_data=blob_bottom_p_->mutable_cpu_data();
+    }
+    else if(Caffe::mode()==Caffe::GPU)
+    {   
+        bottom_I_data=blob_bottom_I_->mutable_gpu_data();
+        bottom_p_data=blob_bottom_p_->mutable_gpu_data();
+    }
+    else
+    {
+        //something error
+        EXPECT_EQ(1,2);
+    }
+    Dtype *bottom_I_data_temp=new Dtype[blob_bottom_I_->count()];
+    Dtype *bottom_p_data_temp=new Dtype[blob_bottom_p_->count()];
 
     for(int i=0;i<num*channels*height*width;i+=height*width)
     {
 	//input gray image I
-	blob_bottom_I_->mutable_cpu_data()[i+0]=0.780016225238193;
-	blob_bottom_I_->mutable_cpu_data()[i+1]=0.749580424362298;
-	blob_bottom_I_->mutable_cpu_data()[i+2]=0.740414372089090;
-	blob_bottom_I_->mutable_cpu_data()[i+3]=0.741393586774514;
-	blob_bottom_I_->mutable_cpu_data()[i+4]=0.751388236837560;
-	blob_bottom_I_->mutable_cpu_data()[i+5]=0.737811008594189;
-	blob_bottom_I_->mutable_cpu_data()[i+6]=0.681265649729138;
-	blob_bottom_I_->mutable_cpu_data()[i+7]=0.659440609971576;
-	blob_bottom_I_->mutable_cpu_data()[i+8]=0.616152738174030;
-	blob_bottom_I_->mutable_cpu_data()[i+9]=0.587378842763567;
-	blob_bottom_I_->mutable_cpu_data()[i+10]=0.563849430998861;
-	blob_bottom_I_->mutable_cpu_data()[i+11]=0.537335198750416;
-	blob_bottom_I_->mutable_cpu_data()[i+12]=0.532537855905660;
-	blob_bottom_I_->mutable_cpu_data()[i+13]=0.557046482355789;
-	blob_bottom_I_->mutable_cpu_data()[i+14]=0.579252979102189;
-	blob_bottom_I_->mutable_cpu_data()[i+15]=0.572817689949016;
-	blob_bottom_I_->mutable_cpu_data()[i+16]=0.577676006720180;
-	blob_bottom_I_->mutable_cpu_data()[i+17]=0.596196484818137;
-	blob_bottom_I_->mutable_cpu_data()[i+18]=0.599882503466579;
-	blob_bottom_I_->mutable_cpu_data()[i+19]=0.595320710600831;
-	blob_bottom_I_->mutable_cpu_data()[i+20]=0.608940405385914;
-	blob_bottom_I_->mutable_cpu_data()[i+21]=0.592571440096101;
-	blob_bottom_I_->mutable_cpu_data()[i+22]=0.608300181147616;
-	blob_bottom_I_->mutable_cpu_data()[i+23]=0.600457043892714;
-	blob_bottom_I_->mutable_cpu_data()[i+24]=0.585665050984911;
+	bottom_I_data_temp[i+0]=0.780016225238193;
+	bottom_I_data_temp[i+1]=0.749580424362298;
+	bottom_I_data_temp[i+2]=0.740414372089090;
+	bottom_I_data_temp[i+3]=0.741393586774514;
+	bottom_I_data_temp[i+4]=0.751388236837560;
+	bottom_I_data_temp[i+5]=0.737811008594189;
+	bottom_I_data_temp[i+6]=0.681265649729138;
+	bottom_I_data_temp[i+7]=0.659440609971576;
+	bottom_I_data_temp[i+8]=0.616152738174030;
+	bottom_I_data_temp[i+9]=0.587378842763567;
+	bottom_I_data_temp[i+10]=0.563849430998861;
+	bottom_I_data_temp[i+11]=0.537335198750416;
+	bottom_I_data_temp[i+12]=0.532537855905660;
+	bottom_I_data_temp[i+13]=0.557046482355789;
+	bottom_I_data_temp[i+14]=0.579252979102189;
+	bottom_I_data_temp[i+15]=0.572817689949016;
+	bottom_I_data_temp[i+16]=0.577676006720180;
+	bottom_I_data_temp[i+17]=0.596196484818137;
+	bottom_I_data_temp[i+18]=0.599882503466579;
+	bottom_I_data_temp[i+19]=0.595320710600831;
+	bottom_I_data_temp[i+20]=0.608940405385914;
+	bottom_I_data_temp[i+21]=0.592571440096101;
+	bottom_I_data_temp[i+22]=0.608300181147616;
+	bottom_I_data_temp[i+23]=0.600457043892714;
+	bottom_I_data_temp[i+24]=0.585665050984911;
 	//input coarse map p
-	blob_bottom_p_->mutable_cpu_data()[i+0]=0.564705882352941;
-	blob_bottom_p_->mutable_cpu_data()[i+1]=0.615686274509804;
-	blob_bottom_p_->mutable_cpu_data()[i+2]=0.619607843137255;
-	blob_bottom_p_->mutable_cpu_data()[i+3]=0.611764705882353;
-	blob_bottom_p_->mutable_cpu_data()[i+4]=0.592156862745098;
-	blob_bottom_p_->mutable_cpu_data()[i+5]=0.721568627450980;
-	blob_bottom_p_->mutable_cpu_data()[i+6]=0.690196078431373;
-	blob_bottom_p_->mutable_cpu_data()[i+7]=0.690196078431373;
-	blob_bottom_p_->mutable_cpu_data()[i+8]=0.752941176470588;
-	blob_bottom_p_->mutable_cpu_data()[i+9]=0.729411764705882;
-	blob_bottom_p_->mutable_cpu_data()[i+10]=0.788235294117647;
-	blob_bottom_p_->mutable_cpu_data()[i+11]=0.780392156862745;
-	blob_bottom_p_->mutable_cpu_data()[i+12]=0.827450980392157;
-	blob_bottom_p_->mutable_cpu_data()[i+13]=0.780392156862745;
-	blob_bottom_p_->mutable_cpu_data()[i+14]=0.768627450980392;
-	blob_bottom_p_->mutable_cpu_data()[i+15]=0.827450980392157;
-	blob_bottom_p_->mutable_cpu_data()[i+16]=0.843137254901961;
-	blob_bottom_p_->mutable_cpu_data()[i+17]=0.843137254901961;
-	blob_bottom_p_->mutable_cpu_data()[i+18]=0.847058823529412;
-	blob_bottom_p_->mutable_cpu_data()[i+19]=0.874509803921569;
-	blob_bottom_p_->mutable_cpu_data()[i+20]=0.854901960784314;
-	blob_bottom_p_->mutable_cpu_data()[i+21]=0.921568627450980;
-	blob_bottom_p_->mutable_cpu_data()[i+22]=0.866666666666667;
-	blob_bottom_p_->mutable_cpu_data()[i+23]=0.866666666666667;
-	blob_bottom_p_->mutable_cpu_data()[i+24]=0.854901960784314;
+	bottom_p_data_temp[i+0]=0.564705882352941;
+	bottom_p_data_temp[i+1]=0.615686274509804;
+	bottom_p_data_temp[i+2]=0.619607843137255;
+	bottom_p_data_temp[i+3]=0.611764705882353;
+	bottom_p_data_temp[i+4]=0.592156862745098;
+	bottom_p_data_temp[i+5]=0.721568627450980;
+	bottom_p_data_temp[i+6]=0.690196078431373;
+	bottom_p_data_temp[i+7]=0.690196078431373;
+	bottom_p_data_temp[i+8]=0.752941176470588;
+	bottom_p_data_temp[i+9]=0.729411764705882;
+	bottom_p_data_temp[i+10]=0.788235294117647;
+	bottom_p_data_temp[i+11]=0.780392156862745;
+	bottom_p_data_temp[i+12]=0.827450980392157;
+	bottom_p_data_temp[i+13]=0.780392156862745;
+	bottom_p_data_temp[i+14]=0.768627450980392;
+	bottom_p_data_temp[i+15]=0.827450980392157;
+	bottom_p_data_temp[i+16]=0.843137254901961;
+	bottom_p_data_temp[i+17]=0.843137254901961;
+	bottom_p_data_temp[i+18]=0.847058823529412;
+	bottom_p_data_temp[i+19]=0.874509803921569;
+	bottom_p_data_temp[i+20]=0.854901960784314;
+	bottom_p_data_temp[i+21]=0.921568627450980;
+	bottom_p_data_temp[i+22]=0.866666666666667;
+	bottom_p_data_temp[i+23]=0.866666666666667;
+	bottom_p_data_temp[i+24]=0.854901960784314;
     }
-    
+    caffe_copy(blob_bottom_I_->count(),bottom_I_data_temp,bottom_I_data);
+    caffe_copy(blob_bottom_p_->count(),bottom_p_data_temp,bottom_p_data);
     //setup layer and forward
     layer.SetUp(blob_bottom_vec_,blob_top_vec_);
     EXPECT_EQ(blob_top_q_->num(),num);
@@ -139,7 +159,7 @@ class GuidedFilterLayerTest : public MultiDeviceTest<TypeParam> {
     EXPECT_EQ(blob_top_q_->width(),width);
 
     layer.Forward(blob_bottom_vec_,blob_top_vec_);
-    
+
     //expected output is q (use matlab code)
     //q: 2x1 channels of 5x5:
     //	[0.305451764936534	0.445733832171568   0.437143672489376	0.461166976004217   0.316816551726667]
@@ -151,35 +171,56 @@ class GuidedFilterLayerTest : public MultiDeviceTest<TypeParam> {
     //	[0.539212757413632	0.817764745227509   0.834357568317334	0.837447876355424   0.555031486259445]
     //
     //	[0.392313547968571	0.573363834433404   0.582377960487622	0.574635206634875   0.373106238623831]
-    
+    const Dtype *top_data=NULL;
+    Dtype *top_data_temp=NULL;
+    if(Caffe::mode()==Caffe::CPU)
+    {
+        top_data=blob_top_q_->cpu_data();
+    }
+    else if(Caffe::mode()==Caffe::GPU)
+    {   
+        top_data_temp=new Dtype[blob_top_q_->count()];
+        caffe_copy(blob_top_q_->count(),blob_top_q_->gpu_data(),top_data_temp);
+        top_data=top_data_temp;
+    }
+    else
+    {
+        //something error
+        EXPECT_EQ(1,2);
+    }
+
+    EXPECT_NEAR(top_data[0], 0.305451764936534, 1e-5);
+
+    /*
     for(int i=0;i<num*channels*height*width;i+=height*width)
     {
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 0], 0.305451764936534, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 1], 0.445733832171568, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 2], 0.437143672489376, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 3], 0.461166976004217, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 4], 0.316816551726667, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 5], 0.474597728734006, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 6], 0.685150618246553, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 7], 0.682412051907470, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 8], 0.696731160483050, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 9], 0.457467394868920, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 10], 0.501004634015045, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 11], 0.762760047468481, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 12], 0.812850720701027, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 13], 0.776202999019964, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 14], 0.514125286875935, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 15], 0.539212757413632, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 16], 0.817764745227509, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 17], 0.834357568317334, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 18], 0.837447876355424, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 19], 0.555031486259445, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 20], 0.392313547968571, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 21], 0.573363834433404, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 22], 0.582377960487621, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 23], 0.574635206634875, 1e-5);
-	EXPECT_NEAR(blob_top_q_->cpu_data()[i + 24], 0.373106238623831, 1e-5);
+	EXPECT_NEAR(top_data[i + 0], 0.305451764936534, 1e-5);
+	EXPECT_NEAR(top_data[i + 1], 0.445733832171568, 1e-5);
+	EXPECT_NEAR(top_data[i + 2], 0.437143672489376, 1e-5);
+	EXPECT_NEAR(top_data[i + 3], 0.461166976004217, 1e-5);
+	EXPECT_NEAR(top_data[i + 4], 0.316816551726667, 1e-5);
+	EXPECT_NEAR(top_data[i + 5], 0.474597728734006, 1e-5);
+	EXPECT_NEAR(top_data[i + 6], 0.685150618246553, 1e-5);
+	EXPECT_NEAR(top_data[i + 7], 0.682412051907470, 1e-5);
+	EXPECT_NEAR(top_data[i + 8], 0.696731160483050, 1e-5);
+	EXPECT_NEAR(top_data[i + 9], 0.457467394868920, 1e-5);
+	EXPECT_NEAR(top_data[i + 10], 0.501004634015045, 1e-5);
+	EXPECT_NEAR(top_data[i + 11], 0.762760047468481, 1e-5);
+	EXPECT_NEAR(top_data[i + 12], 0.812850720701027, 1e-5);
+	EXPECT_NEAR(top_data[i + 13], 0.776202999019964, 1e-5);
+	EXPECT_NEAR(top_data[i + 14], 0.514125286875935, 1e-5);
+	EXPECT_NEAR(top_data[i + 15], 0.539212757413632, 1e-5);
+	EXPECT_NEAR(top_data[i + 16], 0.817764745227509, 1e-5);
+	EXPECT_NEAR(top_data[i + 17], 0.834357568317334, 1e-5);
+	EXPECT_NEAR(top_data[i + 18], 0.837447876355424, 1e-5);
+	EXPECT_NEAR(top_data[i + 19], 0.555031486259445, 1e-5);
+	EXPECT_NEAR(top_data[i + 20], 0.392313547968571, 1e-5);
+	EXPECT_NEAR(top_data[i + 21], 0.573363834433404, 1e-5);
+	EXPECT_NEAR(top_data[i + 22], 0.582377960487621, 1e-5);
+	EXPECT_NEAR(top_data[i + 23], 0.574635206634875, 1e-5);
+	EXPECT_NEAR(top_data[i + 24], 0.373106238623831, 1e-5);
     }
+    */
   }
 };
 

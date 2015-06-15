@@ -2,7 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import caffe
-import cv2
+#import cv2
+import scipy.io as sio
 #from time import clock
 
 # take an array of shape (n, height, width) or (n, height, width, channels)
@@ -23,9 +24,9 @@ def vis_square(data, padsize=1, padval=0):
     plt.draw()
 
 
-NEWMODEL_FILE = '../train/MSRA9000/deploy.prototxt'
-NEWPRETRAINED = '../train/MSRA9000/models1/train_iter_100000.caffemodel'
-caffe.set_device(0)
+NEWMODEL_FILE = './deploy.prototxt'
+NEWPRETRAINED = './guidedInitModel.caffemodel'
+caffe.set_device(1)
 caffe.set_mode_gpu()
 net = caffe.Classifier(NEWMODEL_FILE, NEWPRETRAINED,
                        caffe.TEST)
@@ -46,11 +47,18 @@ net.forward()
 data = net.blobs['data'].data[0,:]
 map = net.blobs['outmap'].data[0,0,:]
 im=transformer.deprocess('data',data)
+
+grayImage=np.squeeze(net.blobs['edge1'].data[0,0,:])
+coarseMap=np.squeeze(net.blobs['map'].data[0,0,:])
+guidedMap=np.squeeze(net.blobs['guided_map'].data[0,0,:])
+
 plt.figure(1)
 plt.imshow(im)
 plt.figure(2)
 plt.imshow(map)#,cmap='gray')
-
+#plt.figure(3)
+#plt.imshow(guidedMap)
+#sio.savemat('guide.mat',{'gray':grayImage.astype(np.float64),'map':coarseMap.astype(np.float64)})
 
 #map=np.ceil(map*255)
 #plt.imshow(map)

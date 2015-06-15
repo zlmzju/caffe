@@ -527,8 +527,16 @@ layer {
   type: "Crop"
   bottom: "bigmap"
   bottom: "data"
+  top: "map_score"
+}
+#output the saliency map in (0,1)
+layer {
+  name: "sigmoid"
+  type: "Sigmoid"
+  bottom: "map_score"
   top: "map"
 }
+
 #layer 1 in sibling 1 
 layer {
   name: "conv_edge1"
@@ -544,9 +552,9 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
-    pad: 1
-    kernel_size: 3
+    num_output: 1
+    pad: 0
+    kernel_size: 1
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -567,7 +575,7 @@ layer {
   bottom: "map"
   top: "guided_map"
   guided_filter_param {
-    window_size: 64
+    window_size: 48
   }
 }
 layer {
@@ -584,17 +592,17 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 64
-    pad: 1
-    kernel_size: 3
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+    num_output: 1
+    pad: 0
+    kernel_size: 1
+    #weight_filler {
+      #type: "gaussian"
+      #std: 0.01
+    #}
+    #bias_filler {
+      #type: "constant"
+      #value: 0
+    #}
     engine: CAFFE
   }
 }
@@ -614,14 +622,14 @@ layer {
   convolution_param {
     num_output: 1
     kernel_size: 1
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+    #weight_filler {
+      #type: "gaussian"
+      #std: 0.01
+    #}
+    #bias_filler {
+      #type: "constant"
+      #value: 0
+    #}
     engine: CAFFE
   }
 }
