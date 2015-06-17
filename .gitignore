@@ -1,8 +1,9 @@
 ## General
-windows/VS2013/src/caffe/layers
+windows/VS2013/src/caffe
 
 
 # Compiled Object files
+*.lib
 *.slo
 *.lo
 *.o
@@ -15,6 +16,7 @@ windows/VS2013/src/caffe/layers
 *.bsc
 *.exp
 *.deps
+*.exe
 # Compiled Dynamic libraries
 *.so
 *.dylib
@@ -75,6 +77,7 @@ models/*
 # build, distribute, and bins (+ python proto bindings)
 3rdparty/include
 3rdparty/lib
+3rdparty/include.zip
 windows/VS2013/build
 .build_debug/*
 .build_release/*
