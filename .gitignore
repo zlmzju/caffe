@@ -1,4 +1,6 @@
 ## General
+windows/VS2013/src/caffe/layers
+
 
 # Compiled Object files
 *.slo
@@ -12,6 +14,7 @@
 *.pdb
 *.bsc
 *.exp
+*.deps
 # Compiled Dynamic libraries
 *.so
 *.dylib
