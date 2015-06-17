@@ -74,6 +74,7 @@ models/*
 
 # build, distribute, and bins (+ python proto bindings)
 3rdparty/include
+3rdparty/lib
 windows/VS2013/build
 .build_debug/*
 .build_release/*
