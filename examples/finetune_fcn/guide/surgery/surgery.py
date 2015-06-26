@@ -21,8 +21,8 @@ print [(k, v.data.shape) for k, v in finetune_net.blobs.items()]
 print('\nparams finetune_net')
 print [(k, v[0].data.shape) for k, v in finetune_net.params.items()]
 #piecewise constant interpolation
-finetune_net.params['interp'][0].data.flat=np.ones(finetune_net.params['interp'][0].data.shape)
-finetune_net.params['interp'][1].data.flat=np.zeros(finetune_net.params['interp'][1].data.shape)
+#finetune_net.params['interp'][0].data.flat=np.ones(finetune_net.params['interp'][0].data.shape)
+#finetune_net.params['interp'][1].data.flat=np.zeros(finetune_net.params['interp'][1].data.shape)
 #grayscal or intensity = 0.2989 * R + 0.5870 * G + 0.1140 * B 
 finetune_net.params['conv_edge1'][0].data[:,0,:].flat=0.1140*np.ones(finetune_net.params['conv_edge1'][0].data.shape) #* finetune_net.params['conv_edge1'][0].data[:,0,:]
 finetune_net.params['conv_edge1'][0].data[:,1,:].flat=0.5870*np.ones(finetune_net.params['conv_edge1'][0].data.shape) #* finetune_net.params['conv_edge1'][0].data[:,1,:]

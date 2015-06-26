@@ -19,8 +19,8 @@ class GuidedFilterLayerTest : public MultiDeviceTest<TypeParam> {
 
  protected:
   GuidedFilterLayerTest()
-      : blob_bottom_I_(new Blob<Dtype>(1,1,5,5)),
-	blob_bottom_p_(new Blob<Dtype>(1,1,5,5)),
+      : blob_bottom_I_(new Blob<Dtype>(2,2,5,5)),
+	blob_bottom_p_(new Blob<Dtype>(2,1,5,5)),
         blob_top_q_(new Blob<Dtype>()) 
   {
     blob_bottom_vec_.push_back(blob_bottom_I_);
@@ -32,7 +32,7 @@ class GuidedFilterLayerTest : public MultiDeviceTest<TypeParam> {
     delete blob_bottom_p_;
     delete blob_top_q_;
   }
-  Blob<Dtype>* const blob_bottom_I_;
+  Blob<Dtype>* blob_bottom_I_;
   Blob<Dtype>* const blob_bottom_p_;
   Blob<Dtype>* const blob_top_q_;
   vector<Blob<Dtype>*> blob_bottom_vec_;
@@ -70,12 +70,15 @@ class GuidedFilterLayerTest : public MultiDeviceTest<TypeParam> {
     //	[0.854901960784314   0.921568627450980	0.866666666666667   0.866666666666667	0.854901960784314]
     //
  
-    const int num=1;
-    const int channels=1;
+    const int num=2;
+    const int channels=2;
     const int height=5;
     const int width=5;
     Dtype *bottom_I_data=NULL;
     Dtype *bottom_p_data=NULL;
+    //blob_bottom_I_->Reshape(num,channels,height,width);
+    //blob_bottom_p_->Reshape(num,1,height,width);
+
     if(Caffe::mode()==Caffe::CPU)
     {
         bottom_I_data=blob_bottom_I_->mutable_cpu_data();
@@ -122,7 +125,10 @@ class GuidedFilterLayerTest : public MultiDeviceTest<TypeParam> {
 	bottom_I_data_temp[i+22]=0.608300181147616;
 	bottom_I_data_temp[i+23]=0.600457043892714;
 	bottom_I_data_temp[i+24]=0.585665050984911;
-	//input coarse map p
+    }
+    for(int i=0;i<num*1*height*width;i+=height*width)
+    {
+        //input coarse map p
 	bottom_p_data_temp[i+0]=0.564705882352941;
 	bottom_p_data_temp[i+1]=0.615686274509804;
 	bottom_p_data_temp[i+2]=0.619607843137255;
@@ -189,9 +195,8 @@ class GuidedFilterLayerTest : public MultiDeviceTest<TypeParam> {
         EXPECT_EQ(1,2);
     }
 
-    EXPECT_NEAR(top_data[0], 0.305451764936534, 1e-5);
+    //EXPECT_NEAR(top_data[0], 0.305451764936534, 1e-5);
 
-    /*
     for(int i=0;i<num*channels*height*width;i+=height*width)
     {
 	EXPECT_NEAR(top_data[i + 0], 0.305451764936534, 1e-5);
@@ -220,7 +225,6 @@ class GuidedFilterLayerTest : public MultiDeviceTest<TypeParam> {
 	EXPECT_NEAR(top_data[i + 23], 0.574635206634875, 1e-5);
 	EXPECT_NEAR(top_data[i + 24], 0.373106238623831, 1e-5);
     }
-    */
   }
 };
 

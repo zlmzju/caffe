@@ -494,48 +494,87 @@ layer {
     engine: CAFFE
   }
 }
+##layer 19 deconvolution upsample
+layer 
+{ 
+    type: "Deconvolution"
+    name: 'deconv' 
+    bottom: 'score' 
+    top: 'bigmap'
+    convolution_param 
+    { 
+        num_output: 1
+        kernel_size: 64 
+        stride: 32 
+    } 
+}
+#layer 20 crop
+layer  
+{ 
+    type: "Crop" 
+    name: 'crop_finetune' 
+    bottom: 'bigmap' 
+    bottom: 'data' 
+    top: 'crop_map' 
+}
+layer 
+{
+    type:"Sigmoid"
+    name: 'sigmoid'
+    bottom:'crop_map'
+    top:'map'
+}
+##layer 21 loss
+#layers 
+#{
+  #name: "loss"
+  #type: EUCLIDEAN_LOSS
+  #bottom: "outmap"
+  #bottom: "inputmap"
+  #top: "loss"
+#}
 #piecewise constant interpolation
-layer {
-  name: "interp"
-  type: "Deconvolution"
-  bottom: "score"
-  top: "bigmap"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 1
-    kernel_size: 64
-    stride: 32
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
-layer {
-  name: "crop_finetune"
-  type: "Crop"
-  bottom: "bigmap"
-  bottom: "data"
-  top: "map_score"
-}
-#output the saliency map in (0,1)
-layer {
-  name: "sigmoid"
-  type: "Sigmoid"
-  bottom: "map_score"
-  top: "map"
-}
+#layer {
+  #name: "interp"
+  #type: "Deconvolution"
+  #bottom: "score"
+  #top: "bigmap"
+  #param {
+    #lr_mult: 1
+    #decay_mult: 1
+  #}
+  #param {
+    #lr_mult: 2
+    #decay_mult: 0
+  #}
+  #convolution_param {
+    #num_output: 1
+    #kernel_size: 64
+    #stride: 32
+    #weight_filler {
+      #type: "gaussian"
+      #std: 0.01
+    #}
+    #bias_filler {
+      #type: "constant"
+      #value: 0
+    #}
+  #}
+#}
+#layer {
+  #name: "crop_finetune"
+  #type: "Crop"
+  #bottom: "bigmap"
+  #bottom: "data"
+  #top: "map_score"
+#}
+##output the saliency map in (0,1)
+#layer {
+  #name: "sigmoid"
+  #type: "Sigmoid"
+  #bottom: "map_score"
+  #top: "map"
+#}
 
 #layer 1 in sibling 1 
 layer {

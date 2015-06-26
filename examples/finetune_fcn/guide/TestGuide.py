@@ -36,7 +36,8 @@ print('\nblobs')
 print [(k, v.data.shape) for k, v in net.blobs.items()]
 
 path='/home/liming/project/iccv15/ICCV_EXP/Dataset/ECSSD/Images/'
-filename=path+'0007.jpg'
+#path='/mnt/ftp/datasets/VOT2014/vot/jogging/'
+filename=path+'0362.jpg'
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
 transformer.set_transpose('data', (2,0,1))
 transformer.set_mean('data', np.array([ 104.00698793,  116.66876762,  122.67891434])) # mean pixel
@@ -51,11 +52,14 @@ im=transformer.deprocess('data',data)
 grayImage=np.squeeze(net.blobs['edge1'].data[0,0,:])
 coarseMap=np.squeeze(net.blobs['map'].data[0,0,:])
 guidedMap=np.squeeze(net.blobs['guided_map'].data[0,0,:])
-
+outmap=guidedMap
+outmap[guidedMap>0.9]=0.9
 plt.figure(1)
 plt.imshow(im)
 plt.figure(2)
-plt.imshow(map)#,cmap='gray')
+plt.imshow(map,cmap='gray')
+plt.figure(3)
+plt.imshow(outmap,cmap='gray')
 #plt.figure(3)
 #plt.imshow(guidedMap)
 #sio.savemat('guide.mat',{'gray':grayImage.astype(np.float64),'map':coarseMap.astype(np.float64)})
