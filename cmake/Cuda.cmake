@@ -4,7 +4,7 @@ endif()
 
 # Known NVIDIA GPU achitectures Caffe can be compiled for.
 # This list will be used for CUDA_ARCH_NAME = All option
-set(Caffe_known_gpu_archs "20 21(20) 30 35 50 60 61")
+set(Caffe_known_gpu_archs "20 21(20) 30 35 50")
 
 ################################################################################################
 # A function for automatic detection of GPUs installed  (if autodetection is enabled)
@@ -36,8 +36,12 @@ function(caffe_detect_installed_gpus out_variable)
                     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
     if(__nvcc_res EQUAL 0)
+      # nvcc outputs text containing line breaks when building with MSVC.
+      # The line below prevents CMake from inserting a variable with line
+      # breaks in the cache
+      string(REGEX MATCH "([1-9].[0-9])" __nvcc_out "${__nvcc_out}")
       string(REPLACE "2.1" "2.1(2.0)" __nvcc_out "${__nvcc_out}")
-      set(CUDA_gpu_detect_output ${__nvcc_out} CACHE INTERNAL "Returned GPU architetures from caffe_detect_gpus tool" FORCE)
+      set(CUDA_gpu_detect_output ${__nvcc_out} CACHE INTERNAL "Returned GPU architetures from caffe_detect_gpus tool" FORCE)      
     endif()
   endif()
 
@@ -56,7 +60,7 @@ endfunction()
 #   caffe_select_nvcc_arch_flags(out_variable)
 function(caffe_select_nvcc_arch_flags out_variable)
   # List of arch names
-  set(__archs_names "Fermi" "Kepler" "Maxwell" "Pascal" "All" "Manual")
+  set(__archs_names "Fermi" "Kepler" "Maxwell" "All" "Manual")
   set(__archs_name_default "All")
   if(NOT CMAKE_CROSSCOMPILING)
     list(APPEND __archs_names "Auto")
@@ -89,8 +93,6 @@ function(caffe_select_nvcc_arch_flags out_variable)
     set(__cuda_arch_bin "30 35")
   elseif(${CUDA_ARCH_NAME} STREQUAL "Maxwell")
     set(__cuda_arch_bin "50")
-  elseif(${CUDA_ARCH_NAME} STREQUAL "Pascal")
-    set(__cuda_arch_bin "60 61")
   elseif(${CUDA_ARCH_NAME} STREQUAL "All")
     set(__cuda_arch_bin ${Caffe_known_gpu_archs})
   elseif(${CUDA_ARCH_NAME} STREQUAL "Auto")
@@ -173,12 +175,22 @@ function(detect_cuDNN)
   set(CUDNN_ROOT "" CACHE PATH "CUDNN root folder")
 
   find_path(CUDNN_INCLUDE cudnn.h
-            PATHS ${CUDNN_ROOT} $ENV{CUDNN_ROOT} ${CUDA_TOOLKIT_INCLUDE}
-            DOC "Path to cuDNN include directory." )
+            PATHS ${CUDNN_ROOT} #$ENV{CUDNN_ROOT} ${CUDA_TOOLKIT_INCLUDE}
+            PATH_SUFFIXES include
+            DOC "Path to cuDNN include directory." NO_DEFAULT_PATH )
+  message(STATUS "Read cuDNN: ver. ${CUDNN_ROOT} found (include: ${CUDNN_INCLUDE}, library: ${CUDNN_LIBRARY})")         
+  unset(_path_suffixes)
+  if(MSVC AND ${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+    set(_path_suffixes PATH_SUFFIXES lib/x64)
+  else()
+    set(_path_suffixes PATH_SUFFIXES lib/Win32)    
+  endif()
 
   # dynamic libs have different suffix in mac and linux
   if(APPLE)
     set(CUDNN_LIB_NAME "libcudnn.dylib")
+  elseif(MSVC)
+    set(CUDNN_LIB_NAME "cudnn")
   else()
     set(CUDNN_LIB_NAME "libcudnn.so")
   endif()
@@ -186,7 +198,8 @@ function(detect_cuDNN)
   get_filename_component(__libpath_hist ${CUDA_CUDART_LIBRARY} PATH)
   find_library(CUDNN_LIBRARY NAMES ${CUDNN_LIB_NAME}
    PATHS ${CUDNN_ROOT} $ENV{CUDNN_ROOT} ${CUDNN_INCLUDE} ${__libpath_hist} ${__libpath_hist}/../lib
-   DOC "Path to cuDNN library.")
+   ${_path_suffixes}
+   DOC "Path to cuDNN library." NO_DEFAULT_PATH)
   
   if(CUDNN_INCLUDE AND CUDNN_LIBRARY)
     set(HAVE_CUDNN  TRUE PARENT_SCOPE)
@@ -240,17 +253,17 @@ endif()
 
 set(HAVE_CUDA TRUE)
 message(STATUS "CUDA detected: " ${CUDA_VERSION})
-list(APPEND Caffe_INCLUDE_DIRS PUBLIC ${CUDA_INCLUDE_DIRS})
-list(APPEND Caffe_LINKER_LIBS PUBLIC ${CUDA_CUDART_LIBRARY}
-                                     ${CUDA_curand_LIBRARY} ${CUDA_CUBLAS_LIBRARIES})
+include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
+list(APPEND Caffe_LINKER_LIBS ${CUDA_CUDART_LIBRARY}
+                              ${CUDA_curand_LIBRARY} ${CUDA_CUBLAS_LIBRARIES})
 
 # cudnn detection
 if(USE_CUDNN)
   detect_cuDNN()
   if(HAVE_CUDNN)
-    list(APPEND Caffe_DEFINITIONS PUBLIC -DUSE_CUDNN)
-    list(APPEND Caffe_INCLUDE_DIRS PUBLIC ${CUDNN_INCLUDE})
-    list(APPEND Caffe_LINKER_LIBS PUBLIC ${CUDNN_LIBRARY})
+    add_definitions(-DUSE_CUDNN)
+    include_directories(SYSTEM ${CUDNN_INCLUDE})
+    list(APPEND Caffe_LINKER_LIBS ${CUDNN_LIBRARY})
   endif()
 endif()
 
@@ -284,7 +297,7 @@ mark_as_advanced(CUDA_SDK_ROOT_DIR CUDA_SEPARABLE_COMPILATION)
 if(APPLE)
   caffe_detect_darwin_version(OSX_VERSION)
 
-  # OSX 10.9 and higher uses clang/libc++ by default which is incompatible with old CUDA toolkits
+  # OSX 10.9 and higher uses clang/libc++ by default which is incompartible with old CUDA toolkits
   if(OSX_VERSION VERSION_GREATER 10.8)
     # enabled by default if and only if CUDA version is less than 7.0
     caffe_option(USE_libstdcpp "Use libstdc++ instead of libc++" (CUDA_VERSION VERSION_LESS 7.0))

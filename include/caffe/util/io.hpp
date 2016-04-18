@@ -131,6 +131,9 @@ bool DecodeDatum(Datum* datum, bool is_color);
 
 #ifdef USE_OPENCV
 cv::Mat ReadImageToCVMat(const string& filename,
+	int height, int width, const int shorter_side_min, const int shorter_side_max, const bool is_color);
+
+cv::Mat ReadImageToCVMat(const string& filename,
     const int height, const int width, const bool is_color);
 
 cv::Mat ReadImageToCVMat(const string& filename,

@@ -26,13 +26,18 @@ template <typename Dtype>
 void ImageDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   const int new_height = this->layer_param_.image_data_param().new_height();
-  const int new_width  = this->layer_param_.image_data_param().new_width();
+  const int new_width = this->layer_param_.image_data_param().new_width();
+  const int shorter_side_min = this->layer_param_.image_data_param().shorter_side_min();
+  const int shorter_side_max = this->layer_param_.image_data_param().shorter_side_max();
   const bool is_color  = this->layer_param_.image_data_param().is_color();
   string root_folder = this->layer_param_.image_data_param().root_folder();
 
   CHECK((new_height == 0 && new_width == 0) ||
       (new_height > 0 && new_width > 0)) << "Current implementation requires "
       "new_height and new_width to be set at the same time.";
+  CHECK((shorter_side_min == 0 && shorter_side_max == 0) ||
+	  (shorter_side_min > 0 && shorter_side_max > 0)) << "Current implementation requires "
+	  "shorter_side_min and shorter_side_max to be set at the same time.";
   // Read the file with filenames and labels
   const string& source = this->layer_param_.image_data_param().source();
   LOG(INFO) << "Opening file " << source;
@@ -73,7 +78,7 @@ void ImageDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
   }
   // Read an image, and use it to initialize the top blob.
   cv::Mat cv_img = ReadImageToCVMat(root_folder + lines_[lines_id_].first,
-                                    new_height, new_width, is_color);
+	  new_height, new_width, shorter_side_min, shorter_side_max, is_color);
   CHECK(cv_img.data) << "Could not load " << lines_[lines_id_].first;
   // Use data_transformer to infer the expected blob shape from a cv_image.
   vector<int> top_shape = this->data_transformer_->InferBlobShape(cv_img);
@@ -117,15 +122,17 @@ void ImageDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
   CHECK(this->transformed_data_.count());
   ImageDataParameter image_data_param = this->layer_param_.image_data_param();
   const int batch_size = image_data_param.batch_size();
-  const int new_height = image_data_param.new_height();
-  const int new_width = image_data_param.new_width();
+  int new_height = image_data_param.new_height();
+  int new_width = image_data_param.new_width();
+  const int shorter_side_min = image_data_param.shorter_side_min();
+  const int shorter_side_max = image_data_param.shorter_side_max();
   const bool is_color = image_data_param.is_color();
   string root_folder = image_data_param.root_folder();
 
   // Reshape according to the first image of each batch
   // on single input batches allows for inputs of varying dimension.
   cv::Mat cv_img = ReadImageToCVMat(root_folder + lines_[lines_id_].first,
-      new_height, new_width, is_color);
+	  new_height, new_width, shorter_side_min, shorter_side_max, is_color);
   CHECK(cv_img.data) << "Could not load " << lines_[lines_id_].first;
   // Use data_transformer to infer the expected blob shape from a cv_img.
   vector<int> top_shape = this->data_transformer_->InferBlobShape(cv_img);
@@ -143,8 +150,8 @@ void ImageDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
     // get a blob
     timer.Start();
     CHECK_GT(lines_size, lines_id_);
-    cv::Mat cv_img = ReadImageToCVMat(root_folder + lines_[lines_id_].first,
-        new_height, new_width, is_color);
+	cv::Mat cv_img = ReadImageToCVMat(root_folder + lines_[lines_id_].first,
+		new_height, new_width, shorter_side_min, shorter_side_max, is_color);
     CHECK(cv_img.data) << "Could not load " << lines_[lines_id_].first;
     read_time += timer.MicroSeconds();
     timer.Start();

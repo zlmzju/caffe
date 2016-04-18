@@ -71,6 +71,40 @@ void WriteProtoToBinaryFile(const Message& proto, const char* filename) {
 
 #ifdef USE_OPENCV
 cv::Mat ReadImageToCVMat(const string& filename,
+	int height, int width, const int shorter_side_min, const int shorter_side_max, const bool is_color) {
+	cv::Mat cv_img;
+	int cv_read_flag = (is_color ? CV_LOAD_IMAGE_COLOR :
+		CV_LOAD_IMAGE_GRAYSCALE);
+	cv::Mat cv_img_origin = cv::imread(filename, cv_read_flag);
+	if (!cv_img_origin.data) {
+		LOG(ERROR) << "Could not open or find file " << filename;
+		return cv_img_origin;
+	}
+	//resize the image with its shorter side randomly sampled in [min, max]
+	if (shorter_side_min > 0 && shorter_side_max > 0) {
+		cv::Size img_size = cv_img_origin.size();
+		int rand_length = shorter_side_min + rand() % (shorter_side_max - shorter_side_min);
+		float scale_ratio = 1.0;
+		if (img_size.height < img_size.width)
+		{
+			scale_ratio = rand_length*1.0 / img_size.height;
+		}
+		else
+		{
+			scale_ratio = rand_length*1.0 / img_size.width;
+		}
+		height = ceil(img_size.height * scale_ratio);
+		width = ceil(img_size.width * scale_ratio);
+	}
+	if (height > 0 && width > 0) {
+		cv::resize(cv_img_origin, cv_img, cv::Size(width, height), 0, 0, cv::INTER_CUBIC);
+	}
+	else {
+		cv_img = cv_img_origin;
+	}
+	return cv_img;
+}
+cv::Mat ReadImageToCVMat(const string& filename,
     const int height, const int width, const bool is_color) {
   cv::Mat cv_img;
   int cv_read_flag = (is_color ? CV_LOAD_IMAGE_COLOR :
