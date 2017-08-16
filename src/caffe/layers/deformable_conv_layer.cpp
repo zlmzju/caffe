@@ -21,10 +21,24 @@ void DeformableConvolutionLayer<Dtype>::compute_output_shape() {
   }
 }
 
+template <typename Dtype>
+void DeformableConvolutionLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+      const vector<Blob<Dtype>*>& top) {
+    NOT_IMPLEMENTED;
+}
+
+template <typename Dtype>
+void DeformableConvolutionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
+      const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
+    NOT_IMPLEMENTED;
+}
+
+
 #ifdef CPU_ONLY
 STUB_GPU(DeformableConvolutionLayer);
 #endif
 
 INSTANTIATE_CLASS(DeformableConvolutionLayer);
+REGISTER_LAYER_CLASS(DeformableConvolution);
 
 }  // namespace caffe

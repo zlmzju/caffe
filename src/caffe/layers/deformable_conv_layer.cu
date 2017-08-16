@@ -54,7 +54,7 @@ void DeformableConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>&
   }
 }
 //
-
+/*
 forward_gpu_gemm(const Dtype* input,
     const Dtype* weights, Dtype* output, bool skip_im2col) {
   const Dtype* col_buff = input;
@@ -71,7 +71,7 @@ forward_gpu_gemm(const Dtype* input,
         (Dtype)0., output + output_offset_ * g);
   }
 }
-
+*/
 
 
 INSTANTIATE_LAYER_GPU_FUNCS(DeformableConvolutionLayer);
