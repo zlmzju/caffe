@@ -19,7 +19,7 @@ void DeformableConvolutionLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& 
 
     for (int n = 0; n < this->num_; ++n) {
         deformable_im2col_gpu(bottom_data + n*this->bottom_dim_, //data_col
-               offset + n*this->bottom_dim_,//offset
+               offset + n*this->offset_dim_,//offset
                this->channels_,
                bottom[0]->shape(1),//height 
                bottom[0]->shape(0),//width
@@ -50,7 +50,9 @@ void DeformableConvolutionLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& 
 template <typename Dtype>
 void DeformableConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
    const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-    const Dtype* weight = this->blobs_[0]->gpu_data();
+    const Dtype* weights = this->blobs_[0]->gpu_data();
+    const Dtype* bottom_data = bottom[0]->gpu_data();
+    const Dtype* offset = bottom[1]->gpu_data();
     Dtype* weight_diff = this->blobs_[0]->mutable_gpu_diff();
 
     Dtype* col_buff = col_buffer_.mutable_gpu_data();
@@ -63,7 +65,6 @@ void DeformableConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>&
       }
     }
     if (this->param_propagate_down_[0] || propagate_down[0]) {
-      const Dtype* bottom_data = bottom[0]->gpu_data();
       Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
       Dtype* offset_diff = bottom[1]->mutable_gpu_diff();
       for (int n = 0; n < this->num_; ++n) {
@@ -78,12 +79,12 @@ void DeformableConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>&
                 // gradient w.r.t. bottom data, if necessary.
                 caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, this->kernel_dim_, 
                       this->conv_out_spatial_dim_, this->conv_out_channels_ /this->group_,
-                      (Dtype)1., weight + this->weight_offset_ * g,
+                      (Dtype)1., weights + this->weight_offset_ * g,
                       top_diff + n * this->top_dim_ + this->output_offset_ * g,
                       (Dtype)0., col_buff + this->col_offset_ * g);
            }
            // gradient w.r.t input data
-           deformable_col2im_gpu(col_buff + n*this->bottom_dim_, //data_col
+           deformable_col2im_gpu(col_buffer_.gpu_data() + n*this->bottom_dim_, //data_col
                  offset + n*this->bottom_dim_,//offset
                  this->channels_,
                  bottom[0]->shape(1),//height 
@@ -100,8 +101,8 @@ void DeformableConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>&
                  bottom_diff + n*this->bottom_dim_);
 
            // gradient w.r.t input offset data
-           deformable_col2im_coord_gpu(col_buff + n*this->bottom_dim_, //data_col
-                 offset + n*this->bottom_dim_,//offset
+           deformable_col2im_coord_gpu(col_buffer_.gpu_data() + n*this->bottom_dim_, //data_col
+                 offset + n*this->offset_dim_,//offset
                  this->channels_,
                  bottom[0]->shape(1),//height 
                  bottom[0]->shape(0),//width
@@ -114,7 +115,7 @@ void DeformableConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>&
                  this->dilation_.cpu_data()[0],
                  this->dilation_.cpu_data()[1],
                  1,//deformable group
-                 offset_diff + n*this->bottom_dim_);
+                 offset_diff + n*this->offset_dim_);
         }
       }
 
