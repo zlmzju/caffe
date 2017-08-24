@@ -123,43 +123,6 @@ void DeformableConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>&
                  this->dilation_.cpu_data()[1],
                  1,//deformable group
                  offset_diff + n*this->offset_dim_);
-
-        cout<<"offset:"<<endl;
-        const Dtype* col_o=bottom[1]->cpu_data();
-        int L=2;
-        for(int i=0;i<L;i++){
-            for(int j=0;j<L;j++){
-                cout<<col_o[i*L+j]<<",";
-            }
-            cout<<endl;
-        }
-        cout<<"data:"<<endl;
-        const Dtype* col_d=bottom[0]->cpu_data();
-        L=4;
-        for(int i=0;i<L;i++){
-            for(int j=0;j<L;j++){
-                cout<<col_d[i*L+j]<<",";
-            }
-            cout<<endl;
-        }        
-          cout<<endl<<"col_buff:"<<endl;
-          cout<<col_buffer_.shape_string()<<endl;
-          const Dtype* col_b=col_buffer_.cpu_data();
-          for(int i=0;i<L;i++){
-              for(int j=0;j<L;j++){
-                  cout<<col_b[i*L+j]<<",";
-              }
-              cout<<endl;
-          }
-          cout<<endl<<"data_diff:"<<endl;
-          const Dtype* col_df=bottom[0]->cpu_diff();
-          for(int i=0;i<L;i++){
-              for(int j=0;j<L;j++){
-                  cout<<col_df[i*L+j]<<",";
-              }
-              cout<<endl;
-          }
-
         }
       }
 
