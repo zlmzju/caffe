@@ -4,6 +4,9 @@
 #include "caffe/util/gpu_util.cuh"
 #include "caffe/util/deformable_im2col.hpp"
 
+#include <iostream>
+using namespace std;
+
 namespace caffe {
 
 template <typename Dtype>
@@ -207,7 +210,8 @@ void deformable_im2col_gpu(const Dtype* data_im, const Dtype* data_offset, const
   int width_col = (width + 2 * pad_w -
 	  (dilation_w * (kernel_w - 1) + 1)) / stride_w + 1;
   int num_kernels = channels * height_col * width_col;
-   int channel_per_deformable_group = height / deformable_group;
+  int channel_per_deformable_group = height / deformable_group;
+
   // NOLINT_NEXT_LINE(whitespace/operators)
   deformable_im2col_gpu_kernel<Dtype><<<CAFFE_GET_BLOCKS(num_kernels),
 							 CAFFE_CUDA_NUM_THREADS>>>(
@@ -294,14 +298,14 @@ void deformable_col2im_gpu(const Dtype* data_col, const Dtype* data_offset, cons
       stride_h + 1;
   int width_col = (width + 2 * pad_w - (dilation_w * (kernel_w - 1) + 1)) /
       stride_w + 1;
-  int num_kernels = channels * height * width;
+  int num_kernels = channels * height_col * width_col * kernel_h *kernel_w;
   int channel_per_deformable_group = height / deformable_group;
   // To avoid involving atomic operations, we will launch one kernel per
   // bottom dimension, and then in the kernel add up the top dimensions.
   // NOLINT_NEXT_LINE(whitespace/operators)
   deformable_col2im_gpu_kernel<Dtype><<<CAFFE_GET_BLOCKS(num_kernels),
                              CAFFE_CUDA_NUM_THREADS>>>(
-      num_kernels, data_col, data_offset, height, width, channels, kernel_h, kernel_w,
+      num_kernels, data_col, data_offset,channels, height, width,  kernel_h, kernel_w,
       pad_h, pad_w, stride_h, stride_w, dilation_h, dilation_w,
       channel_per_deformable_group, height_col, width_col, grad_im);
   CUDA_POST_KERNEL_CHECK;
@@ -392,7 +396,7 @@ void deformable_col2im_coord_gpu(const Dtype* data_col,  const Dtype* data_offse
   // NOLINT_NEXT_LINE(whitespace/operators)
   deformable_col2im_gpu_kernel<Dtype><<<CAFFE_GET_BLOCKS(num_kernels),
                              CAFFE_CUDA_NUM_THREADS>>>(
-      num_kernels, data_col, data_offset, height, width, channels, kernel_h, kernel_w,
+      num_kernels, data_col, data_offset, channels, height, width,  kernel_h, kernel_w,
       pad_h, pad_w, stride_h, stride_w, dilation_h, dilation_w,
       channel_per_deformable_group, height_col, width_col, grad_offset);
   CUDA_POST_KERNEL_CHECK;

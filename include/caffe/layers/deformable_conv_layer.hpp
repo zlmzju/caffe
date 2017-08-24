@@ -35,6 +35,8 @@ class DeformableConvolutionLayer : public BaseConvolutionLayer<Dtype> {
 
   virtual inline const char* type() const { return "DeformableConvolution"; }
   virtual inline bool EqualNumBottomTopBlobs() const { return false; }
+  virtual void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+      const vector<Blob<Dtype>*>& top);
   virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
 
@@ -55,6 +57,7 @@ class DeformableConvolutionLayer : public BaseConvolutionLayer<Dtype> {
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
   virtual inline bool reverse_dimensions() { return false; }
   virtual void compute_output_shape();
+
  private:
   int num_kernels_im2col_;
   int num_kernels_col2im_;
