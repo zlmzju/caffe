@@ -305,7 +305,7 @@ void deformable_col2im_gpu(const Dtype* data_col, const Dtype* data_offset, cons
   // NOLINT_NEXT_LINE(whitespace/operators)
   deformable_col2im_gpu_kernel<Dtype><<<CAFFE_GET_BLOCKS(num_kernels),
                              CAFFE_CUDA_NUM_THREADS>>>(
-      num_kernels, data_col, data_offset,channels, height, width,  kernel_h, kernel_w,
+      num_kernels, data_col, data_offset, channels, height, width,  kernel_h, kernel_w,
       pad_h, pad_w, stride_h, stride_w, dilation_h, dilation_w,
       channel_per_deformable_group, height_col, width_col, grad_im);
   CUDA_POST_KERNEL_CHECK;
@@ -380,7 +380,7 @@ __global__ void deformable_col2im_coord_gpu_kernel(const int n, const Dtype* dat
   }
 }
 template <typename Dtype>
-void deformable_col2im_coord_gpu(const Dtype* data_col,  const Dtype* data_offset, const int channels,
+void deformable_col2im_coord_gpu(const Dtype* data_col, const Dtype* data_im, const Dtype* data_offset, const int channels,
     const int height, const int width, const int kernel_h, const int kernel_w,
     const int pad_h, const int pad_w, const int stride_h,
     const int stride_w, const int dilation_h, const int dilation_w,
@@ -389,26 +389,28 @@ void deformable_col2im_coord_gpu(const Dtype* data_col,  const Dtype* data_offse
       stride_h + 1;
   int width_col = (width + 2 * pad_w - (dilation_w * (kernel_w - 1) + 1)) /
       stride_w + 1;
-  int num_kernels = height_col * width_col * 2 * kernel_h * kernel_h * deformable_group;
+  int num_kernels = height_col * width_col * 2 * kernel_h * kernel_w * deformable_group;
   int channel_per_deformable_group = height / deformable_group;
   // To avoid involving atomic operations, we will launch one kernel per
   // bottom dimension, and then in the kernel add up the top dimensions.
   // NOLINT_NEXT_LINE(whitespace/operators)
-  deformable_col2im_gpu_kernel<Dtype><<<CAFFE_GET_BLOCKS(num_kernels),
+  deformable_col2im_coord_gpu_kernel<Dtype><<<CAFFE_GET_BLOCKS(num_kernels),
                              CAFFE_CUDA_NUM_THREADS>>>(
-      num_kernels, data_col, data_offset, channels, height, width,  kernel_h, kernel_w,
+      num_kernels, data_col, data_im, data_offset, channels, height, width,  kernel_h, kernel_w,
       pad_h, pad_w, stride_h, stride_w, dilation_h, dilation_w,
       channel_per_deformable_group, height_col, width_col, grad_offset);
   CUDA_POST_KERNEL_CHECK;
 }
 
-template void deformable_col2im_coord_gpu<float>(const float* data_col, const float* data_offset, const int channels,
+template void deformable_col2im_coord_gpu<float>(const float* data_col, const float* data_im, const float* data_offset, 
+const int channels,
 const int height, const int width, const int kernel_h, const int kernel_w,
 const int pad_h, const int pad_w, const int stride_h,
 const int stride_w, const int dilation_h, const int dilation_w,
 const uint32_t deformable_group, float* grad_offset);
 
-template void deformable_col2im_coord_gpu<double>(const double* data_col, const double* data_offset, const int channels,
+template void deformable_col2im_coord_gpu<double>(const double* data_col, const double* data_im, const double* data_offset, 
+const int channels,
 const int height, const int width, const int kernel_h, const int kernel_w,
 const int pad_h, const int pad_w, const int stride_h,
 const int stride_w, const int dilation_h, const int dilation_w,

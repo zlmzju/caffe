@@ -88,7 +88,6 @@ void DeformableConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>&
            }
 
 
-           cout<<"grad. data"<<endl;
            // gradient w.r.t input data
            deformable_col2im_gpu(col_buffer_.gpu_data(), //data_col
                  offset + n*this->bottom_dim_,//offset
@@ -106,9 +105,9 @@ void DeformableConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>&
                  1,//deformable group
                  bottom_diff + n*this->bottom_dim_);
 
-           cout<<"grad. offset"<<endl;
            // gradient w.r.t input offset data
            deformable_col2im_coord_gpu(col_buffer_.gpu_data(), //data_col
+                 bottom_data + n*this->bottom_dim_,
                  offset + n*this->offset_dim_,//offset
                  this->channels_,
                  bottom[0]->shape(2),//height 
