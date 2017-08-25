@@ -231,7 +231,7 @@ void DeformableConvolutionLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bott
   // overly large memory usage. In the special case of 1x1 convolution
   // it goes lazily unused to save memory.
   this->col_buffer_shape_.clear();
-  this->col_buffer_shape_.push_back(this->kernel_dim_ * this->conv_in_channels_);
+  this->col_buffer_shape_.push_back(this->kernel_dim_ * this->group_);
   for (int i = 0; i < this->num_spatial_axes_; ++i) {
     if (reverse_dimensions()) {
       this->col_buffer_shape_.push_back(input_shape(i + 1));
