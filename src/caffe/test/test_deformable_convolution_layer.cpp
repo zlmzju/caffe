@@ -153,19 +153,21 @@ class DeformableConvolutionLayerTest : public MultiDeviceTest<TypeParam> {
 
  protected:
   DeformableConvolutionLayerTest()
-      : blob_bottom_(new Blob<Dtype>(2, 3, 6, 4)),
-        blob_bottom_2_(new Blob<Dtype>(2, 18, 2, 1)),
+      : blob_bottom_(new Blob<Dtype>(1, 1, 4, 4)),
+        blob_bottom_2_(new Blob<Dtype>(1, 8, 2, 2)),
         blob_top_(new Blob<Dtype>()) {}
   virtual void SetUp() {
     // fill the values
     FillerParameter filler_param;
-    filler_param.set_value(1.);
-    GaussianFiller<Dtype> filler(filler_param);
-    filler_param.set_value(0.);
-    ConstantFiller<Dtype> filler2(filler_param);
-    filler.Fill(this->blob_bottom_);
-    filler2.Fill(this->blob_bottom_2_);
+    filler_param.set_value(1);
+    ConstantFiller<Dtype> filler(filler_param);
+    filler.Fill(blob_bottom_);
+    FillerParameter filler_param2;
+    filler_param2.set_value(0.);
+    ConstantFiller<Dtype> filler2(filler_param2);
+    filler2.Fill(blob_bottom_2_);
     blob_bottom_vec_.push_back(blob_bottom_);
+    blob_bottom_vec_.push_back(blob_bottom_2_);
     blob_top_vec_.push_back(blob_top_);
   }
 
@@ -191,36 +193,8 @@ class DeformableConvolutionLayerTest : public MultiDeviceTest<TypeParam> {
 
 TYPED_TEST_CASE(DeformableConvolutionLayerTest, TestDtypesAndDevices);
 
-TYPED_TEST(DeformableConvolutionLayerTest, TestSetup) {
-  typedef typename TypeParam::Dtype Dtype;
-  LayerParameter layer_param;
-  ConvolutionParameter* convolution_param =
-      layer_param.mutable_convolution_param();
-  convolution_param->add_kernel_size(3);
-  convolution_param->add_stride(2);
-  convolution_param->set_num_output(4);
-  this->blob_bottom_vec_.push_back(this->blob_bottom_2_);
-  shared_ptr<Layer<Dtype> > layer(
-      new DeformableConvolutionLayer<Dtype>(layer_param));
-  layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
-  EXPECT_EQ(this->blob_top_->num(), 2);
-  EXPECT_EQ(this->blob_top_->channels(), 4);
-  EXPECT_EQ(this->blob_top_->height(), 2);
-  EXPECT_EQ(this->blob_top_->width(), 1);
-  // setting group should not change the shape
-  convolution_param->set_num_output(3);
-  convolution_param->set_group(3);
-  layer.reset(new DeformableConvolutionLayer<Dtype>(layer_param));
-  layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
-  EXPECT_EQ(this->blob_top_->num(), 2);
-  EXPECT_EQ(this->blob_top_->channels(), 3);
-  EXPECT_EQ(this->blob_top_->height(), 2);
-  EXPECT_EQ(this->blob_top_->width(), 1);
-}
-
 TYPED_TEST(DeformableConvolutionLayerTest, TestSimpleConvolution) {
   typedef typename TypeParam::Dtype Dtype;
-  this->blob_bottom_vec_.push_back(this->blob_bottom_2_);
   LayerParameter layer_param;
   ConvolutionParameter* convolution_param =
       layer_param.mutable_convolution_param();
@@ -245,121 +219,27 @@ TYPED_TEST(DeformableConvolutionLayerTest, TestSimpleConvolution) {
     EXPECT_NEAR(top_data[i], ref_top_data[i], 1e-4);
   }
 }
-
-TYPED_TEST(DeformableConvolutionLayerTest, TestDilatedConvolution) {
-  typedef typename TypeParam::Dtype Dtype;
-  vector<int> bottom_shape;
-  bottom_shape.push_back(2);
-  bottom_shape.push_back(3);
-  bottom_shape.push_back(8);
-  bottom_shape.push_back(7);
-  this->blob_bottom_vec_.push_back(this->blob_bottom_2_);
-  for (int i = 0; i < this->blob_bottom_vec_.size(); ++i) {
-    this->blob_bottom_vec_[i]->Reshape(bottom_shape);
-  }
-  LayerParameter layer_param;
-  ConvolutionParameter* convolution_param =
-      layer_param.mutable_convolution_param();
-  convolution_param->add_kernel_size(3);
-  convolution_param->add_dilation(2);
-  convolution_param->set_num_output(4);
-  convolution_param->mutable_weight_filler()->set_type("gaussian");
-  convolution_param->mutable_bias_filler()->set_type("constant");
-  convolution_param->mutable_bias_filler()->set_value(0.1);
-  shared_ptr<Layer<Dtype> > layer(
-      new DeformableConvolutionLayer<Dtype>(layer_param));
-  layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
-  layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
-  // Check against reference convolution.
-  const Dtype* top_data;
-  const Dtype* ref_top_data;
-  caffe_conv(this->blob_bottom_, convolution_param, layer->blobs(),
-             this->MakeReferenceTop(this->blob_top_));
-  top_data = this->blob_top_->cpu_data();
-  ref_top_data = this->ref_blob_top_->cpu_data();
-  for (int i = 0; i < this->blob_top_->count(); ++i) {
-    EXPECT_NEAR(top_data[i], ref_top_data[i], 1e-4);
-  }
-}
-
-TYPED_TEST(DeformableConvolutionLayerTest, Test0DConvolution) {
-  typedef typename TypeParam::Dtype Dtype;
-  LayerParameter layer_param;
-  ConvolutionParameter* convolution_param =
-      layer_param.mutable_convolution_param();
-  const int kNumOutput = 3;
-  convolution_param->set_num_output(kNumOutput);
-  convolution_param->set_axis(3);
-  convolution_param->mutable_weight_filler()->set_type("gaussian");
-  convolution_param->mutable_bias_filler()->set_type("gaussian");
-  shared_ptr<Layer<Dtype> > layer(
-      new DeformableConvolutionLayer<Dtype>(layer_param));
-  vector<int> top_shape = this->blob_bottom_->shape();
-  top_shape[3] = kNumOutput;
-  layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
-  EXPECT_EQ(top_shape, this->blob_top_->shape());
-  layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
-  // Check against reference convolution.
-  vector<int> weight_offset(2);
-  const Blob<Dtype>* weight = layer->blobs()[0].get();
-  const Blob<Dtype>* bias = layer->blobs()[1].get();
-  const int num = this->blob_top_->count(3);
-  const int dim = this->blob_top_->shape(3);
-  const int bottom_dim = this->blob_bottom_->shape(3);
-  for (int n = 0; n < num; ++n) {
-    for (int d = 0; d < dim; ++d) {
-      weight_offset[0] = d;
-      Dtype value = bias->cpu_data()[d];
-      for (int bottom_d = 0; bottom_d < bottom_dim; ++bottom_d) {
-        weight_offset[1] = bottom_d;
-        value += weight->data_at(weight_offset) *
-                 this->blob_bottom_->cpu_data()[n * bottom_dim + bottom_d];
-      }
-      EXPECT_NEAR(value, this->blob_top_->cpu_data()[n * dim + d], 1e-4);
-    }
-  }
-}
-
 //Gradient
 TYPED_TEST(DeformableConvolutionLayerTest, TestGradient) {
   typedef typename TypeParam::Dtype Dtype;
   LayerParameter layer_param;
   ConvolutionParameter* convolution_param =
       layer_param.mutable_convolution_param();
-  this->blob_bottom_vec_.push_back(this->blob_bottom_2_);
-  convolution_param->add_kernel_size(3);
+  convolution_param->add_kernel_size(2);
   convolution_param->add_stride(2);
-  convolution_param->set_num_output(2);
-  convolution_param->mutable_weight_filler()->set_type("gaussian");
-  convolution_param->mutable_bias_filler()->set_type("gaussian");
+  convolution_param->add_pad(0);
+  convolution_param->set_num_output(1);
+  convolution_param->mutable_weight_filler()->set_type("constant");
+  convolution_param->mutable_weight_filler()->set_value(0.1);
+  convolution_param->mutable_bias_filler()->set_type("constant");
+  convolution_param->mutable_bias_filler()->set_value(0);
   DeformableConvolutionLayer<Dtype> layer(layer_param);
   GradientChecker<Dtype> checker(1e-2, 1e-3);
   checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
-      this->blob_top_vec_);
+      this->blob_top_vec_, 0);
+//  checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
+//      this->blob_top_vec_, 1);
 }
 
-TYPED_TEST(DeformableConvolutionLayerTest, TestDilatedGradient) {
-  typedef typename TypeParam::Dtype Dtype;
-  LayerParameter layer_param;
-  ConvolutionParameter* convolution_param =
-      layer_param.mutable_convolution_param();
-  vector<int> bottom_shape;
-  bottom_shape.push_back(2);
-  bottom_shape.push_back(3);
-  bottom_shape.push_back(5);
-  bottom_shape.push_back(6);
-  for (int i = 0; i < this->blob_bottom_vec_.size(); ++i) {
-    this->blob_bottom_vec_[i]->Reshape(bottom_shape);
-  }
-  convolution_param->add_kernel_size(3);
-  convolution_param->add_dilation(2);
-  convolution_param->set_num_output(2);
-  convolution_param->mutable_weight_filler()->set_type("gaussian");
-  convolution_param->mutable_bias_filler()->set_type("gaussian");
-  DeformableConvolutionLayer<Dtype> layer(layer_param);
-  GradientChecker<Dtype> checker(1e-2, 1e-3);
-  checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
-                                  this->blob_top_vec_);
-}
 
 }  // namespace caffe

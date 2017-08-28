@@ -60,8 +60,8 @@ __device__ Dtype get_gradient_weight(Dtype argmax_h, Dtype argmax_w,
   argmax_h = max(argmax_h, (Dtype)0.0f);
   argmax_w = max(argmax_w, (Dtype)0.0f);
 
-  int argmax_h_low = (int)argmax_h;
-  int argmax_w_low = (int)argmax_w;
+  int argmax_h_low = floor(argmax_h);
+  int argmax_w_low = floor(argmax_w);
   int argmax_h_high;
   int argmax_w_high;
   if (argmax_h_low >= height - 1) {
@@ -77,7 +77,7 @@ __device__ Dtype get_gradient_weight(Dtype argmax_h, Dtype argmax_w,
   } else {
 	argmax_w_high = argmax_w_low + 1;
   }
-  Dtype weight = 0;
+  Dtype weight = 0.0;
   if (h == argmax_h_low) {
 	if (w == argmax_w_low) {
 	  weight = (h + 1 - argmax_h) * (w + 1 - argmax_w);
@@ -272,8 +272,8 @@ __global__ void deformable_col2im_gpu_kernel(const int n, const Dtype* data_col,
     const Dtype cur_top_grad = data_col[index];
     const int cur_h = (int)cur_inv_h_data;
     const int cur_w = (int)cur_inv_w_data;
-    for (int dy = -2; dy <= 2; dy++) {
-      for (int dx = -2; dx <= 2; dx++) {
+    for (int dy = 0; dy <= 0; dy++) {
+      for (int dx = -0; dx <= 0; dx++) {
         if (cur_h + dy >= 0 && cur_h + dy < height &&
           cur_w + dx >= 0 && cur_w + dx < width &&
           abs(cur_inv_h_data - (cur_h + dy)) < 1 &&
