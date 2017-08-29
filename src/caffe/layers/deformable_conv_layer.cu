@@ -35,8 +35,6 @@ void DeformableConvolutionLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& 
     const Dtype* offset = bottom[1]->gpu_data();
     Dtype* top_data = top[0]->mutable_gpu_data();
 
-    cout<<"deform group: "<<this->deformable_group_<<endl;
-
     for (int n = 0; n < this->num_; ++n) {
         deformable_im2col_gpu(bottom_data + n*this->bottom_dim_, //data_col
                offset + n*this->offset_dim_,//offset
