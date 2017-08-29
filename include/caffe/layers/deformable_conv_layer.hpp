@@ -68,6 +68,7 @@ class DeformableConvolutionLayer : public BaseConvolutionLayer<Dtype> {
   int kernel_dim_;
   int col_offset_;
   int output_offset_;
+  int deformable_group_;
 
   Blob<Dtype> col_buffer_;
   Blob<Dtype> bias_multiplier_;

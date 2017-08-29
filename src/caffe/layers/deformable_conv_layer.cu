@@ -35,6 +35,7 @@ void DeformableConvolutionLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& 
     const Dtype* offset = bottom[1]->gpu_data();
     Dtype* top_data = top[0]->mutable_gpu_data();
 
+    cout<<"deform group: "<<this->deformable_group_<<endl;
 
     for (int n = 0; n < this->num_; ++n) {
         deformable_im2col_gpu(bottom_data + n*this->bottom_dim_, //data_col
@@ -50,7 +51,7 @@ void DeformableConvolutionLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& 
                this->stride_.cpu_data()[1],
                this->dilation_.cpu_data()[0],
                this->dilation_.cpu_data()[1],
-               1,//deformable group
+               this->deformable_group_,//deformable group
                col_buffer_.mutable_gpu_data());
 
         for (int g = 0; g < this->group_; ++g) {
@@ -127,7 +128,7 @@ void DeformableConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>&
                     this->stride_.cpu_data()[1],
                     this->dilation_.cpu_data()[0],
                     this->dilation_.cpu_data()[1],
-                    1,//deformable group
+                    this->deformable_group_,//deformable group
                     bottom_diff + n*this->bottom_dim_);
             }
 
@@ -147,7 +148,7 @@ void DeformableConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>&
                     this->stride_.cpu_data()[1],
                     this->dilation_.cpu_data()[0],
                     this->dilation_.cpu_data()[1],
-                    1,//deformable group
+                    this->deformable_group_,//deformable group
                     offset_diff + n*this->offset_dim_);
             }
         }
