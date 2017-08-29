@@ -7,6 +7,24 @@ using namespace std;
 
 
 namespace caffe {
+
+template <typename Dtype>
+void debug_info(Blob<Dtype> *blob, bool diff=false){
+    const Dtype* array=blob->cpu_data();
+    if(diff) array=blob->cpu_diff();
+    int C=blob->shape(1);
+    int L=blob->shape(2);
+    for(int c=0;c<C;c++){
+     for(int i=0;i<L;i++){
+      for(int j=0;j<L;j++){
+        cout<<array[c*L*L+i*L+j]<<",";
+      }
+      cout<<endl;
+     }
+     cout<<endl;
+    }
+}
+
 template <typename Dtype>
 void DeformableConvolutionLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
@@ -66,70 +84,89 @@ void DeformableConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>&
       }
     }
     if (this->param_propagate_down_[0] || propagate_down[0]) {
-      Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
-      Dtype* offset_diff = bottom[1]->mutable_gpu_diff();
-      caffe_gpu_set(bottom[0]->count(),Dtype(0),bottom_diff);
-      caffe_gpu_set(bottom[1]->count(),Dtype(0),offset_diff);
-      for (int n = 0; n < this->num_; ++n) {
-        // gradient w.r.t. weight. Note that we will accumulate diffs.
-        if (this->param_propagate_down_[0]) {
-            for (int g = 0; g < this->group_; ++g) {
-                caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasTrans, 
-                      this->conv_out_channels_ /this->group_, this->kernel_dim_, this->conv_out_spatial_dim_, 
-                      (Dtype)1., top_diff + n * this->top_dim_ + this->output_offset_ * g,
-                      col_buffer_.gpu_data() + this->col_offset_ * g,
-                      (Dtype)1., weight_diff + this->weight_offset_ * g);
-           }
+        Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
+        Dtype* offset_diff = bottom[1]->mutable_gpu_diff();
+        caffe_gpu_set(bottom[0]->count(),Dtype(0),bottom_diff);
+        caffe_gpu_set(bottom[1]->count(),Dtype(0),offset_diff);
+        for (int n = 0; n < this->num_; ++n) {
+          // gradient w.r.t. weight. Note that we will accumulate diffs.
+          if (this->param_propagate_down_[0]) {
+              for (int g = 0; g < this->group_; ++g) {
+                  caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasTrans, 
+                        this->conv_out_channels_ /this->group_, this->kernel_dim_, this->conv_out_spatial_dim_, 
+                        (Dtype)1., top_diff + n * this->top_dim_ + this->output_offset_ * g,
+                        col_buffer_.gpu_data() + this->col_offset_ * g,
+                        (Dtype)1., weight_diff + this->weight_offset_ * g);
+             }
+          }
         }
-      }
-      for (int n=0; n<this->num_; ++n) {
-          for (int g=0; g<this->group_; ++g) {
-                // gradient w.r.t. bottom data, if necessary.
-                caffe_gpu_gemm<Dtype>(CblasTrans, CblasNoTrans, this->kernel_dim_, 
-                      this->conv_out_spatial_dim_, this->conv_out_channels_ /this->group_,
-                      (Dtype)1., weights + this->weight_offset_ * g,
-                      top_diff + n * this->top_dim_ + this->output_offset_ * g,
-                      (Dtype)0., col_buffer_.mutable_gpu_data() + this->col_offset_ * g);
-          }
+        for (int n=0; n<this->num_; ++n) {
+            for (int g=0; g<this->group_; ++g) {
+                  // gradient w.r.t. bottom data, if necessary.
+                  caffe_gpu_gemm<Dtype>(CblasTrans, CblasNoTrans, this->kernel_dim_, 
+                        this->conv_out_spatial_dim_, this->conv_out_channels_ /this->group_,
+                        (Dtype)1., weights + this->weight_offset_ * g,
+                        top_diff + n * this->top_dim_ + this->output_offset_ * g,
+                        (Dtype)0., col_buffer_.mutable_gpu_data() + this->col_offset_ * g);
+            }
 
-          // gradient w.r.t input data
-          if (propagate_down[0]){         
-            deformable_col2im_gpu(col_buffer_.gpu_data(), //data_col
-                  offset + n*this->offset_dim_,//offset
-                  this->channels_,
-                  bottom[0]->shape(2),//height 
-                  bottom[0]->shape(3),//width
-                  this->kernel_shape_.cpu_data()[0],//kernel_h
-                  this->kernel_shape_.cpu_data()[1],//kernel_w
-                  this->pad_.cpu_data()[0],
-                  this->pad_.cpu_data()[1],
-                  this->stride_.cpu_data()[0],
-                  this->stride_.cpu_data()[1],
-                  this->dilation_.cpu_data()[0],
-                  this->dilation_.cpu_data()[1],
-                  1,//deformable group
-                  bottom_diff + n*this->bottom_dim_);
-          }
+            // gradient w.r.t input data
+            if (propagate_down[0]){         
+              deformable_col2im_gpu(col_buffer_.gpu_data(), //data_col
+                    offset + n*this->offset_dim_,//offset
+                    this->channels_,
+                    bottom[0]->shape(2),//height 
+                    bottom[0]->shape(3),//width
+                    this->kernel_shape_.cpu_data()[0],//kernel_h
+                    this->kernel_shape_.cpu_data()[1],//kernel_w
+                    this->pad_.cpu_data()[0],
+                    this->pad_.cpu_data()[1],
+                    this->stride_.cpu_data()[0],
+                    this->stride_.cpu_data()[1],
+                    this->dilation_.cpu_data()[0],
+                    this->dilation_.cpu_data()[1],
+                    1,//deformable group
+                    bottom_diff + n*this->bottom_dim_);
+            }
 
-          if (propagate_down[1]){         
-            // gradient w.r.t input offset data
-            deformable_col2im_coord_gpu(col_buffer_.gpu_data(), //data_col
-                  bottom_data + n*this->bottom_dim_,
-                  offset + n*this->offset_dim_,//offset
-                  this->channels_,
-                  bottom[0]->shape(2),//height 
-                  bottom[0]->shape(3),//width
-                  this->kernel_shape_.cpu_data()[0],//kernel_h
-                  this->kernel_shape_.cpu_data()[1],//kernel_w
-                  this->pad_.cpu_data()[0],
-                  this->pad_.cpu_data()[1],
-                  this->stride_.cpu_data()[0],
-                  this->stride_.cpu_data()[1],
-                  this->dilation_.cpu_data()[0],
-                  this->dilation_.cpu_data()[1],
-                  1,//deformable group
-                  offset_diff + n*this->offset_dim_);
-          }
+            if (propagate_down[1]){         
+              // gradient w.r.t input offset data
+              deformable_col2im_coord_gpu(col_buffer_.gpu_data(), //data_col
+                    bottom_data + n*this->bottom_dim_,
+                    offset + n*this->offset_dim_,//offset
+                    this->channels_,
+                    bottom[0]->shape(2),//height 
+                    bottom[0]->shape(3),//width
+                    this->kernel_shape_.cpu_data()[0],//kernel_h
+                    this->kernel_shape_.cpu_data()[1],//kernel_w
+                    this->pad_.cpu_data()[0],
+                    this->pad_.cpu_data()[1],
+                    this->stride_.cpu_data()[0],
+                    this->stride_.cpu_data()[1],
+                    this->dilation_.cpu_data()[0],
+                    this->dilation_.cpu_data()[1],
+                    1,//deformable group
+                    offset_diff + n*this->offset_dim_);
+            }
+            cout<<endl<<"--------------START of DEBUG-----------------------"<<endl;
+            cout<<"data:"<<endl;
+            debug_info<Dtype>(bottom[0]);
+            
+//            cout<<"offset:"<<endl;
+//            debug_info<Dtype>(bottom[1]);
+
+            cout<<"top_diff:"<<endl;
+            debug_info<Dtype>(top[0],true);
+            
+            cout<<"col_buff:"<<endl;
+            debug_info<Dtype>(&col_buffer_);
+            
+//            cout<<"data_diff:"<<endl;
+//            debug_info<Dtype>(bottom[0],true);
+            
+            cout<<"offset_diff:"<<endl;
+            debug_info<Dtype>(bottom[1],true);
+            cout<<"--------------END of DEBUG-----------------------"<<endl;
         }
     }
 }

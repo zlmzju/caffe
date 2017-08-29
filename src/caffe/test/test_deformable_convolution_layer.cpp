@@ -160,7 +160,7 @@ class DeformableConvolutionLayerTest : public MultiDeviceTest<TypeParam> {
     // fill the values
     FillerParameter filler_param;
     filler_param.set_value(1);
-    ConstantFiller<Dtype> filler(filler_param);
+    GaussianFiller<Dtype> filler(filler_param);
     filler.Fill(blob_bottom_);
     FillerParameter filler_param2;
     filler_param2.set_value(0.);
@@ -235,11 +235,10 @@ TYPED_TEST(DeformableConvolutionLayerTest, TestGradient) {
   convolution_param->mutable_bias_filler()->set_value(0);
   DeformableConvolutionLayer<Dtype> layer(layer_param);
   GradientChecker<Dtype> checker(1e-2, 1e-3);
-  checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
-      this->blob_top_vec_, 0);
 //  checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
-//      this->blob_top_vec_, 1);
-}
-
+//      this->blob_top_vec_, 0);
+  checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
+      this->blob_top_vec_, 1);
+} 
 
 }  // namespace caffe
