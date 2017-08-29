@@ -24,7 +24,7 @@ void debug_info(Blob<Dtype> *blob, bool diff=false){
       }
       cout<<endl;
      }
-    {
+    }
 }
 
 template <typename Dtype>
@@ -161,10 +161,18 @@ void DeformableConvolutionLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>&
             debug_info<Dtype>(top[0],true);
             
             cout<<"col_buff:"<<endl;
-            debug_info<Dtype>(&col_buffer_);
-            
-//            cout<<"data_diff:"<<endl;
-//            debug_info<Dtype>(bottom[0],true);
+            const Dtype* array=col_buffer_.cpu_data();
+            int L=col_buffer_.shape(1)*col_buffer_.shape(2);
+            for(int i=0;i<col_buffer_.shape(0);i++){
+               for(int j=0;j<L;j++){
+                 cout<<array[i*L+j]<<",";
+               }
+               cout<<endl;
+            }
+            cout<<endl;
+
+            cout<<"data_diff:"<<endl;
+            debug_info<Dtype>(bottom[0],true);
             
             cout<<"offset_diff:"<<endl;
             debug_info<Dtype>(bottom[1],true);

@@ -13,8 +13,8 @@ template <typename Dtype>
 __device__ Dtype deformable_im2col_bilinear(const Dtype* bottom_data, const int data_width, 
   const int height, const int width, Dtype h, Dtype w) {
 
-  int h_low = floor(h);
-  int w_low = floor(w);
+  int h_low = (int)(h);
+  int w_low = (int)(w);
   int h_high;
   int w_high;
   if (h_low >= height - 1) {
@@ -60,8 +60,8 @@ __device__ Dtype get_gradient_weight(Dtype argmax_h, Dtype argmax_w,
   argmax_h = max(argmax_h, (Dtype)0.0f);
   argmax_w = max(argmax_w, (Dtype)0.0f);
 
-  int argmax_h_low = floor(argmax_h);
-  int argmax_w_low = floor(argmax_w);
+  int argmax_h_low = (int)(argmax_h);
+  int argmax_w_low = (int)(argmax_w);
   int argmax_h_high;
   int argmax_w_high;
   if (argmax_h_low >= height - 1) {

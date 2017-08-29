@@ -230,15 +230,13 @@ TYPED_TEST(DeformableConvolutionLayerTest, TestGradient) {
   convolution_param->add_pad(0);
   convolution_param->set_num_output(1);
   convolution_param->mutable_weight_filler()->set_type("constant");
-  convolution_param->mutable_weight_filler()->set_value(0.1);
+  convolution_param->mutable_weight_filler()->set_value(0.5);
   convolution_param->mutable_bias_filler()->set_type("constant");
   convolution_param->mutable_bias_filler()->set_value(0);
   DeformableConvolutionLayer<Dtype> layer(layer_param);
   GradientChecker<Dtype> checker(1e-2, 1e-3);
-//  checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
-//      this->blob_top_vec_, 0);
-  checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
-      this->blob_top_vec_, 1);
+  checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_, this->blob_top_vec_);
+//  checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_, this->blob_top_vec_, 1);
 } 
 
 }  // namespace caffe
