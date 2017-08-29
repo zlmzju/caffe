@@ -182,7 +182,6 @@ void Solver<Dtype>::Step(int iters) {
   const int start_iter = iter_;
   const int stop_iter = iter_ + iters;
   int average_loss = this->param_.average_loss();
-  losses_.clear();
   smoothed_loss_ = 0;
   iteration_timer_.Start();
 
@@ -218,7 +217,7 @@ void Solver<Dtype>::Step(int iters) {
       float per_s = (iter_ - iterations_last_) / (lapse ? lapse : 1);
       LOG_IF(INFO, Caffe::root_solver()) << "Iteration " << iter_
           << " (" << per_s << " iter/s, " << lapse << "s/"
-          << param_.display() << " iters), loss = " << smoothed_loss_;
+          << param_.display() << " iters), loss = " << smoothed_loss_ << " ("<<average_loss<<")";
       iteration_timer_.Start();
       iterations_last_ = iter_;
       const vector<Blob<Dtype>*>& result = net_->output_blobs();
