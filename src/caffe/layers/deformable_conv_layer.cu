@@ -14,15 +14,17 @@ void debug_info(Blob<Dtype> *blob, bool diff=false){
     if(diff) array=blob->cpu_diff();
     int C=blob->shape(1);
     int L=blob->shape(2);
-    for(int c=0;c<C;c++){
-     for(int i=0;i<L;i++){
-      for(int j=0;j<L;j++){
-        cout<<array[c*L*L+i*L+j]<<",";
+    for(int n=0;n<blob->shape(0);n++){
+     for(int c=0;c<C;c++){
+      for(int i=0;i<L;i++){
+       for(int j=0;j<L;j++){
+         cout<<array[c*L*L+i*L+j]<<",";
+       }
+       cout<<endl;
       }
       cout<<endl;
      }
-     cout<<endl;
-    }
+    {
 }
 
 template <typename Dtype>

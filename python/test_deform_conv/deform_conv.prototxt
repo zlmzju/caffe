@@ -5,11 +5,40 @@ input_dim: 1
 input_dim: 1
 input_dim: 4
 input_dim: 4
-
 layer{
-    name: "dconv"
+    name: "offset"
     type: "Convolution"
     bottom: "data"
+    top: "offset"
+    param{
+        lr_mult: 1
+        decay_mult: 1
+    }
+    param{
+        lr_mult: 2
+        decay_mult: 0
+    }
+    convolution_param{
+        num_output: 8
+        kernel_size: 2
+        pad: 0
+        stride: 2
+        weight_filler{
+            type: "constant"
+            value: 0.0
+        }
+        bias_filler{
+            type: "constant"
+            value: 0
+        }
+    }
+}
+layer{
+    name: "dconv"
+    type: "DeformableConvolution"
+#    type: "Convolution"
+    bottom: "data"
+    bottom: "offset"
     top: "dconv"
     param{
         lr_mult: 1
