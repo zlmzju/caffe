@@ -210,7 +210,7 @@ void deformable_im2col_gpu(const Dtype* data_im, const Dtype* data_offset, const
   int width_col = (width + 2 * pad_w -
 	  (dilation_w * (kernel_w - 1) + 1)) / stride_w + 1;
   int num_kernels = channels * height_col * width_col;
-  int channel_per_deformable_group = height / deformable_group;
+  int channel_per_deformable_group = channels / deformable_group;
 
   // NOLINT_NEXT_LINE(whitespace/operators)
   deformable_im2col_gpu_kernel<Dtype><<<CAFFE_GET_BLOCKS(num_kernels),
