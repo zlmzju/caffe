@@ -153,8 +153,8 @@ class DeformableConvolutionLayerTest : public MultiDeviceTest<TypeParam> {
 
  protected:
   DeformableConvolutionLayerTest()
-      : blob_bottom_(new Blob<Dtype>(1, 1, 4, 4)),
-        blob_bottom_2_(new Blob<Dtype>(1, 8, 2, 2)),
+      : blob_bottom_(new Blob<Dtype>(2, 2, 4, 4)),
+        blob_bottom_2_(new Blob<Dtype>(2, 8, 2, 2)),
         blob_top_(new Blob<Dtype>()) {}
   virtual void SetUp() {
     // fill the values
@@ -198,7 +198,7 @@ TYPED_TEST(DeformableConvolutionLayerTest, TestSimpleConvolution) {
   LayerParameter layer_param;
   ConvolutionParameter* convolution_param =
       layer_param.mutable_convolution_param();
-  convolution_param->add_kernel_size(3);
+  convolution_param->add_kernel_size(2);
   convolution_param->add_stride(2);
   convolution_param->set_num_output(4);
   convolution_param->mutable_weight_filler()->set_type("gaussian");
@@ -220,7 +220,7 @@ TYPED_TEST(DeformableConvolutionLayerTest, TestSimpleConvolution) {
   }
 }
 //Gradient
-TYPED_TEST(DeformableConvolutionLayerTest, TestGradient) {
+TYPED_TEST(DeformableConvolutionLayerTest, TestDataGradient) {
   typedef typename TypeParam::Dtype Dtype;
   LayerParameter layer_param;
   ConvolutionParameter* convolution_param =
@@ -229,14 +229,36 @@ TYPED_TEST(DeformableConvolutionLayerTest, TestGradient) {
   convolution_param->add_stride(2);
   convolution_param->add_pad(0);
   convolution_param->set_num_output(1);
-  convolution_param->mutable_weight_filler()->set_type("constant");
-  convolution_param->mutable_weight_filler()->set_value(0.5);
+  convolution_param->mutable_weight_filler()->set_type("gaussian");
   convolution_param->mutable_bias_filler()->set_type("constant");
   convolution_param->mutable_bias_filler()->set_value(0);
   DeformableConvolutionLayer<Dtype> layer(layer_param);
+  layer.SetUp(this->blob_bottom_vec_,this->blob_top_vec_);
   GradientChecker<Dtype> checker(1e-2, 1e-3);
-  checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_, this->blob_top_vec_);
+  checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_, this->blob_top_vec_, 0);
 //  checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_, this->blob_top_vec_, 1);
 } 
 
+TYPED_TEST(DeformableConvolutionLayerTest, TestOffsetGradient) {
+  typedef typename TypeParam::Dtype Dtype;
+  LayerParameter layer_param;
+  ConvolutionParameter* convolution_param =
+      layer_param.mutable_convolution_param();
+  convolution_param->add_kernel_size(2);
+  convolution_param->add_stride(2);
+  convolution_param->add_pad(0);
+  convolution_param->set_num_output(1);
+  convolution_param->mutable_weight_filler()->set_type("gaussian");
+  convolution_param->mutable_bias_filler()->set_type("constant");
+  convolution_param->mutable_bias_filler()->set_value(0);
+  FillerParameter filler_param2;
+  filler_param2.set_value(1.);
+  GaussianFiller<Dtype> filler2(filler_param2);
+  filler2.Fill(this->blob_bottom_2_);
+  DeformableConvolutionLayer<Dtype> layer(layer_param);
+  layer.SetUp(this->blob_bottom_vec_,this->blob_top_vec_);
+  GradientChecker<Dtype> checker(1e-2, 1e-3);
+  checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_, this->blob_top_vec_, 1);
+//  checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_, this->blob_top_vec_, 1);
+} 
 }  // namespace caffe

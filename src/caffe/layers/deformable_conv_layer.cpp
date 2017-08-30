@@ -181,6 +181,7 @@ void DeformableConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& b
   this->weight_offset_ = this->conv_out_channels_ * this->kernel_dim_ / this->group_;
   // Propagate gradients to the parameters (as directed by backward pass).
   this->param_propagate_down_.resize(this->blobs_.size(), true);
+  this->deformable_group_=bottom[1]->shape(1)/this->blobs_[0]->count(2)/2;
 }
 
 template <typename Dtype>
@@ -239,7 +240,6 @@ void DeformableConvolutionLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bott
     }
   }
   this->col_buffer_.Reshape(this->col_buffer_shape_);
-  this->deformable_group_=bottom[1]->shape(1)/this->blobs_[0]->count(2)/2;
   this->bottom_dim_ = bottom[0]->count(this->channel_axis_);
   this->offset_dim_ = bottom[1]->count(this->channel_axis_);
   this->top_dim_ = top[0]->count(this->channel_axis_);
