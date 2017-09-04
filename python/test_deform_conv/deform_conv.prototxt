@@ -1,15 +1,43 @@
 
-force_backward: true
 input: "data"
 input_dim: 1
 input_dim: 2
 input_dim: 4
 input_dim: 4
 layer{
-    name: "offset"
+    name: "input"
     type: "Convolution"
     bottom: "data"
+    top: "input"
+    param{
+        lr_mult: 1
+        decay_mult: 1
+    }
+    param{
+        lr_mult: 2
+        decay_mult: 0
+    }
+    convolution_param{
+        num_output: 2
+        kernel_size: 3
+        pad: 1
+        stride: 1
+        weight_filler{
+            type: "constant"
+            value: 0.1
+        }
+        bias_filler{
+            type: "constant"
+            value: 0
+        }
+    }
+}
+layer{
+    name: "offset"
+    type: "Convolution"
+    bottom: "input"
     top: "offset"
+    propagate_down: true
     param{
         lr_mult: 1
         decay_mult: 1
@@ -25,7 +53,7 @@ layer{
         stride: 2
         weight_filler{
             type: "constant"
-            value: 0.05
+            value: 0.01
         }
         bias_filler{
             type: "constant"
@@ -37,7 +65,7 @@ layer{
     name: "dconv"
     type: "DeformableConvolution"
 #    type: "Convolution"
-    bottom: "data"
+    bottom: "input"
     bottom: "offset"
     top: "dconv"
     param{
@@ -55,7 +83,7 @@ layer{
         stride: 2
         weight_filler{
             type: "constant"
-            value: 1
+            value: 0.5
         }
         bias_filler{
             type: "constant"

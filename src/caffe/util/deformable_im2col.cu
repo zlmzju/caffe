@@ -390,7 +390,7 @@ void deformable_col2im_coord_gpu(const Dtype* data_col, const Dtype* data_im, co
   int width_col = (width + 2 * pad_w - (dilation_w * (kernel_w - 1) + 1)) /
       stride_w + 1;
   int num_kernels = height_col * width_col * 2 * kernel_h * kernel_w * deformable_group;
-  int channel_per_deformable_group = height / deformable_group;
+  int channel_per_deformable_group = channels*kernel_h*kernel_w / deformable_group; //TODO: ignore group
   // To avoid involving atomic operations, we will launch one kernel per
   // bottom dimension, and then in the kernel add up the top dimensions.
   // NOLINT_NEXT_LINE(whitespace/operators)
