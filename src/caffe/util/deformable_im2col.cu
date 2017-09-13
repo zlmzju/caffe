@@ -272,8 +272,8 @@ __global__ void deformable_col2im_gpu_kernel(const int n, const Dtype* data_col,
     const Dtype cur_top_grad = data_col[index];
     const int cur_h = (int)cur_inv_h_data;
     const int cur_w = (int)cur_inv_w_data;
-    for (int dy = -0; dy <= 1; dy++) {
-      for (int dx = -0; dx <= 1; dx++) {
+    for (int dy = -0; dy <= 0; dy++) {
+      for (int dx = -0; dx <= 0; dx++) {
         if (cur_h + dy >= 0 && cur_h + dy < height &&
           cur_w + dx >= 0 && cur_w + dx < width &&
           abs(cur_inv_h_data - (cur_h + dy)) < 1 &&
