@@ -13,8 +13,8 @@ template <typename Dtype>
 __device__ Dtype deformable_im2col_bilinear(const Dtype* bottom_data, const int data_width, 
   const int height, const int width, Dtype h, Dtype w) {
 
-  int h_low = (int)(h);
-  int w_low = (int)(w);
+  int h_low = floor(h);
+  int w_low = floor(w);
   int h_high;
   int w_high;
   if (h_low >= height - 1) {
@@ -60,8 +60,8 @@ __device__ Dtype get_gradient_weight(Dtype argmax_h, Dtype argmax_w,
   argmax_h = max(argmax_h, (Dtype)0.0f);
   argmax_w = max(argmax_w, (Dtype)0.0f);
 
-  int argmax_h_low = (int)(argmax_h);
-  int argmax_w_low = (int)(argmax_w);
+  int argmax_h_low = floor(argmax_h);
+  int argmax_w_low = floor(argmax_w);
   int argmax_h_high;
   int argmax_w_high;
   if (argmax_h_low >= height - 1) {
@@ -109,8 +109,8 @@ __device__ Dtype get_coordinate_weight(Dtype argmax_h, Dtype argmax_w,
   if (argmax_h < 0) argmax_h = 0;
   if (argmax_w < 0) argmax_w = 0;
 
-  int argmax_h_low = (int)argmax_h;
-  int argmax_w_low = (int)argmax_w;
+  int argmax_h_low = floor(argmax_h);
+  int argmax_w_low = floor(argmax_w);
   int argmax_h_high;
   int argmax_w_high;
   if (argmax_h_low >= height - 1) {
@@ -270,20 +270,22 @@ __global__ void deformable_col2im_gpu_kernel(const int n, const Dtype* data_col,
     const Dtype cur_inv_w_data = w_in + j * dilation_w + offset_w;
 
     const Dtype cur_top_grad = data_col[index];
-    const int cur_h = (int)cur_inv_h_data;
-    const int cur_w = (int)cur_inv_w_data;
-    for (int dy = -0; dy <= 0; dy++) {
-      for (int dx = -0; dx <= 0; dx++) {
-        if (cur_h + dy >= 0 && cur_h + dy < height &&
-          cur_w + dx >= 0 && cur_w + dx < width &&
-          abs(cur_inv_h_data - (cur_h + dy)) < 1 &&
-          abs(cur_inv_w_data - (cur_w + dx)) < 1
-          ) {
-          int cur_bottom_grad_pos = (c * height + cur_h + dy) * width + cur_w + dx;
-          Dtype weight = get_gradient_weight(cur_inv_h_data, cur_inv_w_data, cur_h + dy, cur_w + dx, height, width);
-          caffe_gpu_atomic_add(weight * cur_top_grad, grad_im + cur_bottom_grad_pos);
+    const int cur_h = floor(cur_inv_h_data);
+    const int cur_w = floor(cur_inv_w_data);
+	if (cur_h >= 0 && cur_w >= 0 && cur_h < height && cur_w < width) {
+        for (int dy = 0; dy <= 1; dy++) {
+          for (int dx = 0; dx <= 1; dx++) {
+            if (cur_h + dy >= 0 && cur_h + dy < height &&
+              cur_w + dx >= 0 && cur_w + dx < width &&
+              abs(cur_inv_h_data - (cur_h + dy)) < 1 &&
+              abs(cur_inv_w_data - (cur_w + dx)) < 1
+              ) {
+              int cur_bottom_grad_pos = (c * height + cur_h + dy) * width + cur_w + dx;
+              Dtype weight = get_gradient_weight(cur_inv_h_data, cur_inv_w_data, cur_h + dy, cur_w + dx, height, width);
+              caffe_gpu_atomic_add(weight * cur_top_grad, grad_im + cur_bottom_grad_pos);
+            }
+          }
         }
-      }
     }
   }
 }
