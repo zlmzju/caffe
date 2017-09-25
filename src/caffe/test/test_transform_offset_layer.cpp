@@ -61,12 +61,12 @@ class TransformOffsetLayerTest : public MultiDeviceTest<TypeParam> {
 
  protected:
   TransformOffsetLayerTest()
-      : blob_bottom_(new Blob<Dtype>(1, 8, 2, 2)),
+      : blob_bottom_(new Blob<Dtype>(2, 8, 5, 5)),
         blob_top_(new Blob<Dtype>()) {}
   virtual void SetUp() {
     // fill the values
     FillerParameter filler_param;
-    filler_param.set_value(1.0);
+    filler_param.set_value(0.01);
     GaussianFiller<Dtype> filler(filler_param);
     filler.Fill(blob_bottom_);
     blob_bottom_vec_.push_back(blob_bottom_);
@@ -97,7 +97,7 @@ TYPED_TEST(TransformOffsetLayerTest, TestSimpleTransformOffset) {
   typedef typename TypeParam::Dtype Dtype;
   LayerParameter layer_param;
   TransformOffsetParameter* transform_param =
-      layer_param.mutable_transform_offset_param();  
+      layer_param.mutable_transform_offset_param();
   transform_param->set_num_output(18);
   shared_ptr<Layer<Dtype> > layer(
       new TransformOffsetLayer<Dtype>(layer_param));
@@ -119,10 +119,10 @@ TYPED_TEST(TransformOffsetLayerTest, TestGradient) {
   LayerParameter layer_param;
   TransformOffsetParameter* transform_param =
       layer_param.mutable_transform_offset_param();
-  transform_param->set_num_output(8);
+  transform_param->set_num_output(18);
   TransformOffsetLayer<Dtype> layer(layer_param);
   layer.SetUp(this->blob_bottom_vec_,this->blob_top_vec_);
-  GradientChecker<Dtype> checker(1e-3, 1e-3);
+  GradientChecker<Dtype> checker(1e-2, 1e-3);
   checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_, this->blob_top_vec_);
 }
 

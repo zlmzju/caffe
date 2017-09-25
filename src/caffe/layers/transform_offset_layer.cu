@@ -24,8 +24,8 @@ __global__ void matrix_to_offset(const int n, const Dtype* data_matrix,
     const int h_off = (index / width_off) % height_off;
     const int c_off = index / width_off / height_off;
 
-    const Dtype w_old = c_off % kernel_w - (kernel_w -1.0) / 2.0;
-    const Dtype h_old = (c_off / kernel_w) % kernel_h - (kernel_h -1.0) / 2.0;
+    const Dtype w_old = Dtype(c_off % kernel_w) - (kernel_w -1.0) / 2.0;
+    const Dtype h_old = Dtype((c_off / kernel_w) % kernel_h) - (kernel_h -1.0) / 2.0;
     //transform matrix multiplication: (3, 3) * (w_old, h_old, 1) = (h_new, w_new, z_new)
     Dtype T[8]; //h0, h1, ..., h7, where h8 = 1
     int idx[8]; //index for diff_matrix
@@ -57,8 +57,8 @@ __global__ void offset_to_matrix(const int n,
     const int h_off = (index / width_off) % height_off;
     const int c_off = index / width_off / height_off;
 
-    const Dtype w_old = c_off % kernel_w - (kernel_w -1.0) / 2.0;
-    const Dtype h_old = (c_off / kernel_w) % kernel_h - (kernel_h -1.0) / 2.0;
+    const Dtype w_old = Dtype(c_off % kernel_w) - (kernel_w -1.0) / 2.0;
+    const Dtype h_old = Dtype((c_off / kernel_w) % kernel_h) - (kernel_h -1.0) / 2.0;
     //transform matrix multiplication: (3, 3) * (w_old, h_old, 1) = (h_new, w_new, z_new)
     Dtype T[8]; //h0, h1, ..., h7, where h8 = 1
     int idx[8]; //index for diff_matrix
@@ -77,20 +77,20 @@ __global__ void offset_to_matrix(const int n,
     Dtype dw = diff_offset[offset_index_w];
 
     //diff matrix values
-    T[idx[0]] = (1.0 * dh * h_old) / z_new;
-    T[idx[1]] = (1.0 * dh * w_old) / z_new;
-    T[idx[2]] = (1.0 * dh *   1.0) / z_new;
+    T[0] = (1.0 * dh * h_old) / z_new;
+    T[1] = (1.0 * dh * w_old) / z_new;
+    T[2] = (1.0 * dh *   1.0) / z_new;
 
-    T[idx[3]] = (1.0 * dw * h_old) / z_new;
-    T[idx[4]] = (1.0 * dw * w_old) / z_new;
-    T[idx[5]] = (1.0 * dw *   1.0) / z_new;
+    T[3] = (1.0 * dw * h_old) / z_new;
+    T[4] = (1.0 * dw * w_old) / z_new;
+    T[5] = (1.0 * dw *   1.0) / z_new;
 
-    T[idx[6]] = -1.0 * (dh * h_old * h_new + dw * h_old * w_new) / (z_new * z_new);
-    T[idx[7]] = -1.0 * (dh * w_old * h_new + dw * w_old * w_new) / (z_new * z_new);
+    T[6] = -1.0 * (dh * h_old * h_new + dw * h_old * w_new) / (z_new * z_new);
+    T[7] = -1.0 * (dh * w_old * h_new + dw * w_old * w_new) / (z_new * z_new);
 
     //atomic add
     for(int i = 0; i < 8; ++i){
-        caffe_gpu_atomic_add(T[idx[i]], diff_matrix + idx[i]);
+        caffe_gpu_atomic_add(T[i], diff_matrix + idx[i]);
     }
   }
 }
