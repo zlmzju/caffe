@@ -406,6 +406,7 @@ message LayerParameter {
   optional SliceParameter slice_param = 126;
   optional TanHParameter tanh_param = 127;
   optional ThresholdParameter threshold_param = 128;
+  optional TransformOffsetParameter transform_offset_param = 8888889;
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
 }
@@ -1189,6 +1190,11 @@ message TileParameter {
 // Message that stores parameters used by ThresholdLayer
 message ThresholdParameter {
   optional float threshold = 1 [default = 0]; // Strictly positive values
+}
+
+// Message that stores parameters used by TransformOffsetLayer
+message TransformOffsetParameter {
+  optional uint32 num_output = 1; // The number of outputs for the layer
 }
 
 message WindowDataParameter {
