@@ -37,6 +37,7 @@ __global__ void matrix_to_offset(const int n, const Dtype* data_matrix,
     Dtype h_new = (T[0] + 1.0) * h_old +         T[1] * w_old + T[2];
     Dtype w_new =         T[3] * h_old + (T[4] + 1.0) * w_old + T[5];
     Dtype z_new =         T[6] * h_old +         T[7] * w_old + 1.0;
+    z_new = 1.0;
     //assign new h and w to data_offset
     int offset_index_h = ((2 * c_off + 0) * height_off + h_off) * width_off + w_off;
     int offset_index_w = ((2 * c_off + 1) * height_off + h_off) * width_off + w_off;
@@ -70,6 +71,7 @@ __global__ void offset_to_matrix(const int n,
     Dtype h_new = (T[0] + 1.0) * h_old +         T[1] * w_old + T[2];
     Dtype w_new =         T[3] * h_old + (T[4] + 1.0) * w_old + T[5];
     Dtype z_new =         T[6] * h_old +         T[7] * w_old + 1.0;
+    z_new = 1.0;
     //assign new h and w to data_offset
     int offset_index_h = ((2 * c_off + 0) * height_off + h_off) * width_off + w_off;
     int offset_index_w = ((2 * c_off + 1) * height_off + h_off) * width_off + w_off;
@@ -85,8 +87,8 @@ __global__ void offset_to_matrix(const int n,
     T[4] = (1.0 * dw * w_old) / z_new;
     T[5] = (1.0 * dw *   1.0) / z_new;
 
-    T[6] = -1.0 * (dh * h_old * h_new + dw * h_old * w_new) / (z_new * z_new);
-    T[7] = -1.0 * (dh * w_old * h_new + dw * w_old * w_new) / (z_new * z_new);
+    T[6] = -0.0 * (dh * h_old * h_new + dw * h_old * w_new) / (z_new * z_new);
+    T[7] = -0.0 * (dh * w_old * h_new + dw * w_old * w_new) / (z_new * z_new);
 
     //atomic add
     for(int i = 0; i < 8; ++i){
@@ -103,8 +105,8 @@ void TransformOffsetLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom
     const int num_threads = top[0]->count(1) / 2;
     for(int i = 0; i < top[0]->shape(0); ++i){
         matrix_to_offset<Dtype><<<CAFFE_GET_BLOCKS(num_threads), CAFFE_CUDA_NUM_THREADS>>>(
-                num_threads, matrix, this->kernel_size, this->kernel_size, 
-                top[0]->shape(2), top[0]->shape(3), offset);
+                num_threads, matrix + i * bottom[0]->count(1), this->kernel_size, this->kernel_size, 
+                top[0]->shape(2), top[0]->shape(3), offset + i * top[0]->count(1));
     }
 }
 
@@ -119,8 +121,10 @@ void TransformOffsetLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
     const int num_threads = top[0]->count(1) / 2;
     for(int i = 0; i < top[0]->shape(0); ++i){
         offset_to_matrix<Dtype><<<CAFFE_GET_BLOCKS(num_threads), CAFFE_CUDA_NUM_THREADS>>>(
-                num_threads, offset_diff, matrix, this->kernel_size, this->kernel_size, 
-                top[0]->shape(2), top[0]->shape(3), matrix_diff);
+                num_threads, offset_diff + i * top[0]->count(1), matrix + i * bottom[0]->count(1),
+                this->kernel_size, this->kernel_size, 
+                top[0]->shape(2), top[0]->shape(3), 
+                matrix_diff + i * bottom[0]->count(1));
     }
 
 }
