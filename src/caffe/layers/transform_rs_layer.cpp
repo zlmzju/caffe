@@ -1,13 +1,13 @@
 #include <vector>
 #include <cmath>
 
-#include "caffe/layers/transform_offset_layer.hpp"
+#include "caffe/layers/transform_rs_layer.hpp"
 #include "caffe/util/math_functions.hpp"
 
 namespace caffe {
 
 template <typename Dtype>
-void TransformOffsetLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
+void TransformRSLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   // Figure out the dimensions
   const int C = this->layer_param_.transform_offset_param().num_output();
@@ -18,10 +18,10 @@ void TransformOffsetLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   this->kernel_size = K > 0 ? K: (int) sqrt(C/2);
 }
 #ifdef CPU_ONLY
-STUB_GPU(TransformOffsetLayer);
+STUB_GPU(TransformRSLayer);
 #endif
 
-INSTANTIATE_CLASS(TransformOffsetLayer);
-REGISTER_LAYER_CLASS(TransformOffset);
+INSTANTIATE_CLASS(TransformRSLayer);
+REGISTER_LAYER_CLASS(TransformRS);
 
 }  // namespace caffe
