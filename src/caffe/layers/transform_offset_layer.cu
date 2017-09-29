@@ -13,6 +13,7 @@ namespace caffe {
 * T[3]  , T[4]+1, T[5]
 * T[6]  , T[7]  , 1
 */
+
 template <typename Dtype>
 __global__ void matrix_to_offset(const int n, const Dtype* data_matrix,
   const int kernel_h, const int kernel_w,
@@ -27,22 +28,20 @@ __global__ void matrix_to_offset(const int n, const Dtype* data_matrix,
     const Dtype w_old = Dtype(c_off % kernel_w) - (kernel_w -1.0) / 2.0;
     const Dtype h_old = Dtype((c_off / kernel_w) % kernel_h) - (kernel_h -1.0) / 2.0;
     //transform matrix multiplication: (3, 3) * (w_old, h_old, 1) = (h_new, w_new, z_new)
-    Dtype T[8]; //h0, h1, ..., h7, where h8 = 1
+    Dtype T[8]; //h0, h1, ..., h7, where h8 = 1, T[0] = theta, T[1] = Sx, T[2] = Sy
     int idx[8]; //index for diff_matrix
     for(int i = 0; i < 8; ++i){
         idx[i] = (i * height_off + h_off) * width_off + w_off;
         T[i] = data_matrix[idx[i]];
     }
 
-    Dtype h_new = (T[0] + 1.0) * h_old +         T[1] * w_old + T[2];
-    Dtype w_new =         T[3] * h_old + (T[4] + 1.0) * w_old + T[5];
-    Dtype z_new =         T[6] * h_old +         T[7] * w_old + 1.0;
-    z_new = 1.0;
+    Dtype h_new = (T[1] + 1.0) * cos(T[0]) * h_old - sin(T[0]) * w_old;
+    Dtype w_new = sin(T[0]) * h_old + (T[2] + 1.0) * cos(T[0]) * w_old;
     //assign new h and w to data_offset
     int offset_index_h = ((2 * c_off + 0) * height_off + h_off) * width_off + w_off;
     int offset_index_w = ((2 * c_off + 1) * height_off + h_off) * width_off + w_off;
-    data_offset[offset_index_h] = h_new / z_new - h_old;
-    data_offset[offset_index_w] = w_new / z_new - w_old;
+    data_offset[offset_index_h] = h_new - h_old;
+    data_offset[offset_index_w] = w_new - w_old;
   }
 }
 
@@ -61,17 +60,15 @@ __global__ void offset_to_matrix(const int n,
     const Dtype w_old = Dtype(c_off % kernel_w) - (kernel_w -1.0) / 2.0;
     const Dtype h_old = Dtype((c_off / kernel_w) % kernel_h) - (kernel_h -1.0) / 2.0;
     //transform matrix multiplication: (3, 3) * (w_old, h_old, 1) = (h_new, w_new, z_new)
-    Dtype T[8]; //h0, h1, ..., h7, where h8 = 1
+    Dtype T[8]; //h0, h1, ..., h7, where h8 = 1, T[0] = theta, T[1] = Sx, T[2] = Sy
     int idx[8]; //index for diff_matrix
     for(int i = 0; i < 8; ++i){
         idx[i] = (i * height_off + h_off) * width_off + w_off;
         T[i] = data_matrix[idx[i]];
     }
 
-    Dtype h_new = (T[0] + 1.0) * h_old +         T[1] * w_old + T[2];
-    Dtype w_new =         T[3] * h_old + (T[4] + 1.0) * w_old + T[5];
-    Dtype z_new =         T[6] * h_old +         T[7] * w_old + 1.0;
-    z_new = 1.0;
+    Dtype h_new = (T[1] + 1.0) * cos(T[0]) * h_old - sin(T[0]) * w_old;
+    Dtype w_new = sin(T[0]) * h_old + (T[2] + 1.0) * cos(T[0]) * w_old;
     //assign new h and w to data_offset
     int offset_index_h = ((2 * c_off + 0) * height_off + h_off) * width_off + w_off;
     int offset_index_w = ((2 * c_off + 1) * height_off + h_off) * width_off + w_off;
@@ -79,20 +76,22 @@ __global__ void offset_to_matrix(const int n,
     Dtype dw = diff_offset[offset_index_w];
 
     //diff matrix values
-    T[0] = (1.0 * dh * h_old) / z_new;
-    T[1] = (1.0 * dh * w_old) / z_new;
-    T[2] = (1.0 * dh *   1.0) / z_new;
+    Dtype D[8];
+    D[0] = dh * ((T[1] + 1.0) * (-sin(T[0])) * h_old - cos(T[0]) * w_old);
+    D[0]+= dw * (cos(T[0]) * h_old + (T[2] + 1.0) * (-sin(T[0])) * w_old);
+    D[1] = dh * cos(T[0]) * h_old;
+    D[2] = dw * cos(T[0]) * w_old;
 
-    T[3] = (1.0 * dw * h_old) / z_new;
-    T[4] = (1.0 * dw * w_old) / z_new;
-    T[5] = (1.0 * dw *   1.0) / z_new;
+    D[3] = 0; // (1.0 * dw * h_old) / z_new;
+    D[4] = 0; // (1.0 * dw * w_old) / z_new;
+    D[5] = 0; // (1.0 * dw *   1.0) / z_new;
 
-    T[6] = -0.0 * (dh * h_old * h_new + dw * h_old * w_new) / (z_new * z_new);
-    T[7] = -0.0 * (dh * w_old * h_new + dw * w_old * w_new) / (z_new * z_new);
+    D[6] = 0; // -1.0 * (dh * h_old * h_new + dw * h_old * w_new) / (z_new * z_new);
+    D[7] = 0; // -1.0 * (dh * w_old * h_new + dw * w_old * w_new) / (z_new * z_new);
 
     //atomic add
     for(int i = 0; i < 8; ++i){
-        caffe_gpu_atomic_add(T[i], diff_matrix + idx[i]);
+        caffe_gpu_atomic_add(D[i], diff_matrix + idx[i]);
     }
   }
 }
