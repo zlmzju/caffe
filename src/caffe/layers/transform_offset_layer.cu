@@ -35,8 +35,11 @@ __global__ void matrix_to_offset(const int n, const Dtype* data_matrix,
         T[i] = data_matrix[idx[i]];
     }
 
-    Dtype h_new = (T[1] + 1.0) * cos(T[0]) * h_old - sin(T[0]) * w_old;
-    Dtype w_new = sin(T[0]) * h_old + (T[2] + 1.0) * cos(T[0]) * w_old;
+    Dtype s_h_old = (T[1] + 1.0) * h_old;
+    Dtype s_w_old = (T[2] + 1.0) * w_old;
+
+    Dtype h_new = cos(T[0]) * s_h_old - sin(T[0]) * s_w_old;
+    Dtype w_new = sin(T[0]) * s_h_old + cos(T[0]) * s_w_old;
     //assign new h and w to data_offset
     int offset_index_h = ((2 * c_off + 0) * height_off + h_off) * width_off + w_off;
     int offset_index_w = ((2 * c_off + 1) * height_off + h_off) * width_off + w_off;
@@ -67,8 +70,11 @@ __global__ void offset_to_matrix(const int n,
         T[i] = data_matrix[idx[i]];
     }
 
-    Dtype h_new = (T[1] + 1.0) * cos(T[0]) * h_old - sin(T[0]) * w_old;
-    Dtype w_new = sin(T[0]) * h_old + (T[2] + 1.0) * cos(T[0]) * w_old;
+    Dtype s_h_old = (T[1] + 1.0) * h_old;
+    Dtype s_w_old = (T[2] + 1.0) * w_old;
+
+    Dtype h_new = cos(T[0]) * s_h_old - sin(T[0]) * s_w_old;
+    Dtype w_new = sin(T[0]) * s_h_old + cos(T[0]) * s_w_old;
     //assign new h and w to data_offset
     int offset_index_h = ((2 * c_off + 0) * height_off + h_off) * width_off + w_off;
     int offset_index_w = ((2 * c_off + 1) * height_off + h_off) * width_off + w_off;
@@ -77,10 +83,10 @@ __global__ void offset_to_matrix(const int n,
 
     //diff matrix values
     Dtype D[8];
-    D[0] = dh * ((T[1] + 1.0) * (-sin(T[0])) * h_old - cos(T[0]) * w_old);
-    D[0]+= dw * (cos(T[0]) * h_old + (T[2] + 1.0) * (-sin(T[0])) * w_old);
-    D[1] = dh * cos(T[0]) * h_old;
-    D[2] = dw * cos(T[0]) * w_old;
+    D[0] = dh * ((-sin(T[0])) * s_h_old - cos(T[0]) * s_w_old);
+    D[0]+= dw * (cos(T[0]) * s_h_old + (-sin(T[0])) * s_w_old);
+    D[1] = dh * cos(T[0]) * h_old + dw * sin(T[0]) * h_old;
+    D[2] = dh * (-sin(T[0]) * w_old) + dw * cos(T[0]) * w_old;
 
     D[3] = 0; // (1.0 * dw * h_old) / z_new;
     D[4] = 0; // (1.0 * dw * w_old) / z_new;
