@@ -96,7 +96,7 @@ __global__ void offset_to_matrix(const int n,
 
     //atomic add
     for(int i = 0; i < 8; ++i){
-        caffe_gpu_atomic_add(T[i], diff_matrix + idx[i]);
+        caffe_gpu_atomic_add(T[i] / Dtype(kernel_h * kernel_w), diff_matrix + idx[i]);
     }
   }
 }
