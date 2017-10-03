@@ -19,26 +19,6 @@ using namespace std;
 namespace caffe {
 
 template <typename Dtype>
-void debug_info(Blob<Dtype> *blob, bool diff=false){
-    const Dtype* array=blob->cpu_data();
-    if(diff) array=blob->cpu_diff();
-    int C=blob->shape(1);
-    int L=blob->shape(2);
-    for(int n=0;n<blob->shape(0);n++){
-     for(int c=0;c<C;c++){
-      for(int i=0;i<L;i++){
-       for(int j=0;j<L;j++){
-         cout<<array[c*L*L+i*L+j]<<",";
-       }
-       cout<<endl;
-      }
-      cout<<endl;
-     }
-    }
-}
-
-
-template <typename Dtype>
 Dtype get_data(const Blob<Dtype>* in, int n, int c, Dtype h, Dtype w) {
   int h_low = floor(h);
   int w_low = floor(w);
@@ -219,8 +199,8 @@ class DeformableConvolutionLayerTest : public MultiDeviceTest<TypeParam> {
 
  protected:
   DeformableConvolutionLayerTest()
-      : blob_bottom_(new Blob<Dtype>(1, 1, 4, 4)),
-        blob_bottom_2_(new Blob<Dtype>(1, 18, 4, 4)),
+      : blob_bottom_(new Blob<Dtype>(2, 3, 4, 5)),
+        blob_bottom_2_(new Blob<Dtype>(2, 18, 4, 5)),
         blob_top_(new Blob<Dtype>()) {}
   virtual void SetUp() {
     // fill the values
@@ -230,7 +210,7 @@ class DeformableConvolutionLayerTest : public MultiDeviceTest<TypeParam> {
     filler.Fill(blob_bottom_);
     FillerParameter filler_param2;
     filler_param2.set_value(1.0);
-    ConstantFiller<Dtype> filler2(filler_param2);
+    GaussianFiller<Dtype> filler2(filler_param2);
     filler2.Fill(blob_bottom_2_);
     blob_bottom_vec_.push_back(blob_bottom_);
     blob_bottom_vec_.push_back(blob_bottom_2_);
@@ -267,10 +247,10 @@ TYPED_TEST(DeformableConvolutionLayerTest, TestSimpleConvolution) {
   convolution_param->add_kernel_size(3);
   convolution_param->add_stride(1);
   convolution_param->add_pad(1);
-  convolution_param->set_num_output(1);
-  convolution_param->mutable_weight_filler()->set_type("constant");
+  convolution_param->set_num_output(2);
+  convolution_param->mutable_weight_filler()->set_type("gaussian");
   convolution_param->mutable_weight_filler()->set_value(1.0);
-  convolution_param->mutable_bias_filler()->set_type("constant");
+  convolution_param->mutable_bias_filler()->set_type("gaussian");
   convolution_param->mutable_bias_filler()->set_value(1.0);
   shared_ptr<Layer<Dtype> > layer(
       new DeformableConvolutionLayer<Dtype>(layer_param));
@@ -286,7 +266,6 @@ TYPED_TEST(DeformableConvolutionLayerTest, TestSimpleConvolution) {
   for (int i = 0; i < this->blob_top_->count(); ++i) {
     EXPECT_NEAR(top_data[i], ref_top_data[i], 1e-4);
   }
-  debug_info(this->blob_bottom_);
 }
 //Gradient
 TYPED_TEST(DeformableConvolutionLayerTest, TestDataGradient) {
@@ -297,15 +276,11 @@ TYPED_TEST(DeformableConvolutionLayerTest, TestDataGradient) {
   convolution_param->add_kernel_size(3);
   convolution_param->add_stride(1);
   convolution_param->add_pad(1);
-  convolution_param->set_num_output(1);
+  convolution_param->set_num_output(2);
   convolution_param->mutable_weight_filler()->set_type("gaussian");
-  convolution_param->mutable_bias_filler()->set_type("constant");
-  convolution_param->mutable_bias_filler()->set_value(0.0);
+  convolution_param->mutable_bias_filler()->set_type("gaussian");
+  convolution_param->mutable_bias_filler()->set_value(1.0);
 
-  FillerParameter filler_param2;
-  filler_param2.set_value(1.);
-  GaussianFiller<Dtype> filler2(filler_param2);
-  filler2.Fill(this->blob_bottom_2_);
   DeformableConvolutionLayer<Dtype> layer(layer_param);
   layer.SetUp(this->blob_bottom_vec_,this->blob_top_vec_);
   GradientChecker<Dtype> checker(1e-2, 1e-3);
@@ -321,18 +296,13 @@ TYPED_TEST(DeformableConvolutionLayerTest, TestOffsetGradient) {
   convolution_param->add_kernel_size(3);
   convolution_param->add_stride(1);
   convolution_param->add_pad(1);
-  convolution_param->set_num_output(1);
-  convolution_param->mutable_weight_filler()->set_type("constant");
-  convolution_param->mutable_weight_filler()->set_value(1);
-  convolution_param->mutable_bias_filler()->set_type("constant");
-  convolution_param->mutable_bias_filler()->set_value(0);
-  FillerParameter filler_param2;
-  filler_param2.set_value(1.);
-  ConstantFiller<Dtype> filler2(filler_param2);
-  filler2.Fill(this->blob_bottom_2_);
+  convolution_param->set_num_output(3);
+  convolution_param->mutable_weight_filler()->set_type("gaussian");
+  convolution_param->mutable_bias_filler()->set_type("gaussian");
+  convolution_param->mutable_bias_filler()->set_value(1);
   DeformableConvolutionLayer<Dtype> layer(layer_param);
   layer.SetUp(this->blob_bottom_vec_,this->blob_top_vec_);
-  GradientChecker<Dtype> checker(1e-1, 1e-3);
+  GradientChecker<Dtype> checker(1e-4, 1e-1);
   checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_, this->blob_top_vec_, 1);
 //  checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_, this->blob_top_vec_, 1);
 }
