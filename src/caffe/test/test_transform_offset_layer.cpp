@@ -33,14 +33,16 @@ void transform_offset(const Blob<Dtype>* in, TransformOffsetParameter* transform
         }
         for (int i = 0; i < kernel_h; i++) {
           for (int j = 0; j < kernel_w; j++) {
-            Dtype x = i - (kernel_h - 1.0) / 2.0;
-            Dtype y = j - (kernel_w - 1.0) / 2.0;
+            Dtype sx = (kernel_h - 1.0) / 2.0;
+            Dtype sy = (kernel_w - 1.0) / 2.0;
+            Dtype x = (i - sx) / sx;
+            Dtype y = (j - sy) / sy;
             Dtype x_new = (T[0] + 1.0) * x + T[1] * y + T[2];
             Dtype y_new = T[3] * x + (T[4] + 1.0) * y + T[5];
             Dtype z_new = T[6] * x + T[7] * y + 1.0;
             z_new = 1.0;
-            out_data[out->offset(n, 2 * (i * kernel_w + j) + 0, h, w)] = x_new / z_new - x;
-            out_data[out->offset(n, 2 * (i * kernel_w + j) + 1, h, w)] = y_new / z_new - y;
+            out_data[out->offset(n, 2 * (i * kernel_w + j) + 0, h, w)] = (x_new / z_new - x) * sx;
+            out_data[out->offset(n, 2 * (i * kernel_w + j) + 1, h, w)] = (y_new / z_new - y) * sy;
           }
         }
       }
@@ -62,12 +64,12 @@ class TransformOffsetLayerTest : public MultiDeviceTest<TypeParam> {
 
  protected:
   TransformOffsetLayerTest()
-      : blob_bottom_(new Blob<Dtype>(2, 8, 3, 3)),
+      : blob_bottom_(new Blob<Dtype>(2, 8, 5, 5)),
         blob_top_(new Blob<Dtype>()) {}
   virtual void SetUp() {
     // fill the values
     FillerParameter filler_param;
-    filler_param.set_value(0.01);
+    filler_param.set_value(1);
     GaussianFiller<Dtype> filler(filler_param);
     filler.Fill(blob_bottom_);
     blob_bottom_vec_.push_back(blob_bottom_);
@@ -99,7 +101,7 @@ TYPED_TEST(TransformOffsetLayerTest, TestSimpleTransformOffset) {
   LayerParameter layer_param;
   TransformOffsetParameter* transform_param =
       layer_param.mutable_transform_offset_param();
-  transform_param->set_num_output(18);
+  transform_param->set_num_output(98); //7x7
   shared_ptr<Layer<Dtype> > layer(
       new TransformOffsetLayer<Dtype>(layer_param));
   layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -120,7 +122,7 @@ TYPED_TEST(TransformOffsetLayerTest, TestGradient) {
   LayerParameter layer_param;
   TransformOffsetParameter* transform_param =
       layer_param.mutable_transform_offset_param();
-  transform_param->set_num_output(8);
+  transform_param->set_num_output(50);
   TransformOffsetLayer<Dtype> layer(layer_param);
   layer.SetUp(this->blob_bottom_vec_,this->blob_top_vec_);
   GradientChecker<Dtype> checker(1e-2, 1e-3);

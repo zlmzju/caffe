@@ -11,11 +11,10 @@ void TransformOffsetLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   // Figure out the dimensions
   const int C = this->layer_param_.transform_offset_param().num_output();
-  const int K = this->layer_param_.transform_offset_param().kernel_size();
   vector<int> top_shape = bottom[0]->shape();
   top_shape[1] = C;
   top[0]->Reshape(top_shape);
-  this->kernel_size = K > 0 ? K: (int) sqrt(C/2);
+  this->kernel_size = (int) sqrt(C/2);
 }
 #ifdef CPU_ONLY
 STUB_GPU(TransformOffsetLayer);
