@@ -193,23 +193,22 @@ template void caffe_conv(const Blob<double>* in, const Blob<double>* in_off,
     const vector<shared_ptr<Blob<double> > >& weights,
     Blob<double>* out);
 
+
 template <typename TypeParam>
 class DeformableConvolutionLayerTest : public MultiDeviceTest<TypeParam> {
   typedef typename TypeParam::Dtype Dtype;
 
  protected:
   DeformableConvolutionLayerTest()
-      : blob_bottom_(new Blob<Dtype>(2, 3, 4, 5)),
+      : blob_bottom_(new Blob<Dtype>(2, 1, 4, 5)),
         blob_bottom_2_(new Blob<Dtype>(2, 18, 4, 5)),
         blob_top_(new Blob<Dtype>()) {}
   virtual void SetUp() {
     // fill the values
     FillerParameter filler_param;
-    filler_param.set_value(1);
     GaussianFiller<Dtype> filler(filler_param);
     filler.Fill(blob_bottom_);
     FillerParameter filler_param2;
-    filler_param2.set_value(1.0);
     GaussianFiller<Dtype> filler2(filler_param2);
     filler2.Fill(blob_bottom_2_);
     blob_bottom_vec_.push_back(blob_bottom_);
@@ -237,7 +236,8 @@ class DeformableConvolutionLayerTest : public MultiDeviceTest<TypeParam> {
   vector<Blob<Dtype>*> blob_top_vec_;
 };
 
-TYPED_TEST_CASE(DeformableConvolutionLayerTest, TestDtypesAndDevices);
+typedef ::testing::Types<GPUDevice<float>, GPUDevice<double> > TestDtypesGPU;
+TYPED_TEST_CASE(DeformableConvolutionLayerTest, TestDtypesGPU);
 
 TYPED_TEST(DeformableConvolutionLayerTest, TestSimpleConvolution) {
   typedef typename TypeParam::Dtype Dtype;
@@ -249,9 +249,7 @@ TYPED_TEST(DeformableConvolutionLayerTest, TestSimpleConvolution) {
   convolution_param->add_pad(1);
   convolution_param->set_num_output(2);
   convolution_param->mutable_weight_filler()->set_type("gaussian");
-  convolution_param->mutable_weight_filler()->set_value(1.0);
   convolution_param->mutable_bias_filler()->set_type("gaussian");
-  convolution_param->mutable_bias_filler()->set_value(1.0);
   shared_ptr<Layer<Dtype> > layer(
       new DeformableConvolutionLayer<Dtype>(layer_param));
   layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -279,7 +277,6 @@ TYPED_TEST(DeformableConvolutionLayerTest, TestDataGradient) {
   convolution_param->set_num_output(2);
   convolution_param->mutable_weight_filler()->set_type("gaussian");
   convolution_param->mutable_bias_filler()->set_type("gaussian");
-  convolution_param->mutable_bias_filler()->set_value(1.0);
 
   DeformableConvolutionLayer<Dtype> layer(layer_param);
   layer.SetUp(this->blob_bottom_vec_,this->blob_top_vec_);
@@ -299,7 +296,6 @@ TYPED_TEST(DeformableConvolutionLayerTest, TestOffsetGradient) {
   convolution_param->set_num_output(3);
   convolution_param->mutable_weight_filler()->set_type("gaussian");
   convolution_param->mutable_bias_filler()->set_type("gaussian");
-  convolution_param->mutable_bias_filler()->set_value(1);
   DeformableConvolutionLayer<Dtype> layer(layer_param);
   layer.SetUp(this->blob_bottom_vec_,this->blob_top_vec_);
   GradientChecker<Dtype> checker(1e-4, 1e-1);

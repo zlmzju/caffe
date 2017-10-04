@@ -26,8 +26,8 @@ __global__ void matrix_to_offset(const int n, const Dtype* data_matrix,
 
     const Dtype h_scale = (kernel_h - 1.0) / 2.0;
     const Dtype w_scale = (kernel_w - 1.0) / 2.0;
-    const Dtype h_old = Dtype((c_off / kernel_w) % kernel_h - h_scale) / h_scale;
-    const Dtype w_old = Dtype(c_off % kernel_w - w_scale) / w_scale;
+    const Dtype h_old = Dtype((c_off / kernel_w) % kernel_h - h_scale);
+    const Dtype w_old = Dtype(c_off % kernel_w - w_scale);
     //transform matrix multiplication: (3, 3) * (w_old, h_old, 1) = (h_new, w_new, z_new)
     Dtype T[8]; //h0, h1, ..., h7, where h8 = 1
     int idx[8]; //index for diff_matrix
@@ -43,8 +43,8 @@ __global__ void matrix_to_offset(const int n, const Dtype* data_matrix,
     //assign new h and w to data_offset
     int offset_index_h = ((2 * c_off + 0) * height_off + h_off) * width_off + w_off;
     int offset_index_w = ((2 * c_off + 1) * height_off + h_off) * width_off + w_off;
-    data_offset[offset_index_h] = (h_new / z_new - h_old) * h_scale;
-    data_offset[offset_index_w] = (w_new / z_new - w_old) * w_scale;
+    data_offset[offset_index_h] = (h_new / z_new - h_old);
+    data_offset[offset_index_w] = (w_new / z_new - w_old);
   }
 }
 
@@ -62,8 +62,8 @@ __global__ void offset_to_matrix(const int n,
 
     const Dtype h_scale = (kernel_h - 1.0) / 2.0;
     const Dtype w_scale = (kernel_w - 1.0) / 2.0;
-    const Dtype h_old = ((c_off / kernel_w) % kernel_h - h_scale) / h_scale;
-    const Dtype w_old = (c_off % kernel_w - w_scale) / w_scale;
+    const Dtype h_old = ((c_off / kernel_w) % kernel_h - h_scale);
+    const Dtype w_old = (c_off % kernel_w - w_scale);
     //transform matrix multiplication: (3, 3) * (w_old, h_old, 1) = (h_new, w_new, z_new)
     Dtype T[8]; //h0, h1, ..., h7, where h8 = 1
     int idx[8]; //index for diff_matrix
@@ -79,8 +79,8 @@ __global__ void offset_to_matrix(const int n,
     //assign new h and w to data_offset
     int offset_index_h = ((2 * c_off + 0) * height_off + h_off) * width_off + w_off;
     int offset_index_w = ((2 * c_off + 1) * height_off + h_off) * width_off + w_off;
-    Dtype dh = diff_offset[offset_index_h] * h_scale;
-    Dtype dw = diff_offset[offset_index_w] * w_scale;
+    Dtype dh = diff_offset[offset_index_h];
+    Dtype dw = diff_offset[offset_index_w];
 
     //diff matrix values
     T[0] = (1.0 * dh * h_old) / z_new;
@@ -96,7 +96,7 @@ __global__ void offset_to_matrix(const int n,
 
     //atomic add
     for(int i = 0; i < 8; ++i){
-        caffe_gpu_atomic_add(T[i] / Dtype(kernel_h * kernel_w), diff_matrix + idx[i]);
+        caffe_gpu_atomic_add(T[i], diff_matrix + idx[i]);
     }
   }
 }

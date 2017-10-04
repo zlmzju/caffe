@@ -35,14 +35,14 @@ void transform_offset(const Blob<Dtype>* in, TransformOffsetParameter* transform
           for (int j = 0; j < kernel_w; j++) {
             Dtype sx = (kernel_h - 1.0) / 2.0;
             Dtype sy = (kernel_w - 1.0) / 2.0;
-            Dtype x = (i - sx) / sx;
-            Dtype y = (j - sy) / sy;
+            Dtype x = (i - sx);
+            Dtype y = (j - sy);
             Dtype x_new = (T[0] + 1.0) * x + T[1] * y + T[2];
             Dtype y_new = T[3] * x + (T[4] + 1.0) * y + T[5];
             Dtype z_new = T[6] * x + T[7] * y + 1.0;
             z_new = 1.0;
-            out_data[out->offset(n, 2 * (i * kernel_w + j) + 0, h, w)] = (x_new / z_new - x) * sx;
-            out_data[out->offset(n, 2 * (i * kernel_w + j) + 1, h, w)] = (y_new / z_new - y) * sy;
+            out_data[out->offset(n, 2 * (i * kernel_w + j) + 0, h, w)] = (x_new / z_new - x);
+            out_data[out->offset(n, 2 * (i * kernel_w + j) + 1, h, w)] = (y_new / z_new - y);
           }
         }
       }
@@ -64,12 +64,11 @@ class TransformOffsetLayerTest : public MultiDeviceTest<TypeParam> {
 
  protected:
   TransformOffsetLayerTest()
-      : blob_bottom_(new Blob<Dtype>(2, 8, 5, 5)),
+      : blob_bottom_(new Blob<Dtype>(2, 8, 5, 6)),
         blob_top_(new Blob<Dtype>()) {}
   virtual void SetUp() {
     // fill the values
     FillerParameter filler_param;
-    filler_param.set_value(1);
     GaussianFiller<Dtype> filler(filler_param);
     filler.Fill(blob_bottom_);
     blob_bottom_vec_.push_back(blob_bottom_);
@@ -94,17 +93,18 @@ class TransformOffsetLayerTest : public MultiDeviceTest<TypeParam> {
   vector<Blob<Dtype>*> blob_top_vec_;
 };
 
-TYPED_TEST_CASE(TransformOffsetLayerTest, TestDtypesAndDevices);
+typedef ::testing::Types<GPUDevice<float>, GPUDevice<double> > TestDtypesGPU;
+TYPED_TEST_CASE(TransformOffsetLayerTest, TestDtypesGPU);
 
 TYPED_TEST(TransformOffsetLayerTest, TestSimpleTransformOffset) {
   typedef typename TypeParam::Dtype Dtype;
   LayerParameter layer_param;
   TransformOffsetParameter* transform_param =
       layer_param.mutable_transform_offset_param();
-  transform_param->set_num_output(98); //7x7
+  transform_param->set_num_output(98); 
   shared_ptr<Layer<Dtype> > layer(
       new TransformOffsetLayer<Dtype>(layer_param));
-  layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
+  layer->Reshape(this->blob_bottom_vec_, this->blob_top_vec_);
   layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
   // Check against reference convolution.
   const Dtype* top_data;
