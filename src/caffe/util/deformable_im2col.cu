@@ -372,7 +372,7 @@ __global__ void deformable_col2im_coord_gpu_kernel(const int n, const Dtype* dat
       cnt += 1;
     }
 
-    grad_offset[index] = val / Dtype(cnt);
+    grad_offset[index] = val;
   }
 }
 template <typename Dtype>

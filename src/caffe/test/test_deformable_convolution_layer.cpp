@@ -200,7 +200,7 @@ class DeformableConvolutionLayerTest : public MultiDeviceTest<TypeParam> {
 
  protected:
   DeformableConvolutionLayerTest()
-      : blob_bottom_(new Blob<Dtype>(2, 1, 4, 5)),
+      : blob_bottom_(new Blob<Dtype>(2, 3, 4, 5)),
         blob_bottom_2_(new Blob<Dtype>(2, 18, 4, 5)),
         blob_top_(new Blob<Dtype>()) {}
   virtual void SetUp() {
