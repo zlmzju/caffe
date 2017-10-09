@@ -24,10 +24,12 @@ __global__ void matrix_to_offset(const int n, const Dtype* data_matrix,
     const int h_off = (index / width_off) % height_off;
     const int c_off = index / width_off / height_off;
 
-    const Dtype h_scale = (kernel_h - 1.0) / 2.0;
-    const Dtype w_scale = (kernel_w - 1.0) / 2.0;
-    const Dtype h_old = Dtype((c_off / kernel_w) % kernel_h - h_scale) / h_scale;
-    const Dtype w_old = Dtype(c_off % kernel_w - w_scale) / w_scale;
+    const Dtype h_center = (kernel_h - 1.0) / 2.0;
+    const Dtype w_center = (kernel_w - 1.0) / 2.0;
+    const Dtype h_scale = 1.0; //h_center;
+    const Dtype w_scale = 1.0; //w_center
+    const Dtype h_old = Dtype((c_off / kernel_w) % kernel_h - h_center) / h_scale;
+    const Dtype w_old = Dtype(c_off % kernel_w - w_center) / w_scale;
     //transform matrix multiplication: (3, 3) * (w_old, h_old, 1) = (h_new, w_new, z_new)
     Dtype T[8]; //h0, h1, ..., h7, where h8 = 1
     int idx[8]; //index for diff_matrix
@@ -60,22 +62,23 @@ __global__ void offset_to_matrix(const int n,
     const int h_off = (index / width_off) % height_off;
     const int c_off = index / width_off / height_off;
 
-    const Dtype h_scale = (kernel_h - 1.0) / 2.0;
-    const Dtype w_scale = (kernel_w - 1.0) / 2.0;
-    const Dtype h_old = ((c_off / kernel_w) % kernel_h - h_scale) / h_scale;
-    const Dtype w_old = (c_off % kernel_w - w_scale) / w_scale;
+    const Dtype h_center = (kernel_h - 1.0) / 2.0;
+    const Dtype w_center = (kernel_w - 1.0) / 2.0;
+    const Dtype h_scale = 1.0; //h_center;
+    const Dtype w_scale = 1.0; //w_center
+    const Dtype h_old = Dtype((c_off / kernel_w) % kernel_h - h_center) / h_scale;
+    const Dtype w_old = Dtype(c_off % kernel_w - w_center) / w_scale;
     //transform matrix multiplication: (3, 3) * (w_old, h_old, 1) = (h_new, w_new, z_new)
     Dtype T[8]; //h0, h1, ..., h7, where h8 = 1
     int idx[8]; //index for diff_matrix
     for(int i = 0; i < 8; ++i){
         idx[i] = (i * height_off + h_off) * width_off + w_off;
-        T[i] = data_matrix[idx[i]];
+//        T[i] = data_matrix[idx[i]];
     }
 
-    Dtype h_new = (T[0] + 1.0) * h_old +         T[1] * w_old + T[2];
-    Dtype w_new =         T[3] * h_old + (T[4] + 1.0) * w_old + T[5];
-    Dtype z_new =         T[6] * h_old +         T[7] * w_old + 1.0;
-    z_new = 1.0;
+//    Dtype h_new = (T[0] + 1.0) * h_old +         T[1] * w_old + T[2];
+//    Dtype w_new =         T[3] * h_old + (T[4] + 1.0) * w_old + T[5];
+//    Dtype z_new =         T[6] * h_old +         T[7] * w_old + 1.0;
     //assign new h and w to data_offset
     int offset_index_h = ((2 * c_off + 0) * height_off + h_off) * width_off + w_off;
     int offset_index_w = ((2 * c_off + 1) * height_off + h_off) * width_off + w_off;
@@ -83,16 +86,16 @@ __global__ void offset_to_matrix(const int n,
     Dtype dw = diff_offset[offset_index_w] * w_scale;
 
     //diff matrix values
-    T[0] = (1.0 * dh * h_old) / z_new;
-    T[1] = (1.0 * dh * w_old) / z_new;
-    T[2] = (1.0 * dh *   1.0) / z_new;
+    T[0] = (1.0 * dh * h_old); // / z_new;
+    T[1] = (1.0 * dh * w_old); // / z_new;
+    T[2] = (1.0 * dh *   1.0); // / z_new;
 
-    T[3] = (1.0 * dw * h_old) / z_new;
-    T[4] = (1.0 * dw * w_old) / z_new;
-    T[5] = (1.0 * dw *   1.0) / z_new;
+    T[3] = (1.0 * dw * h_old); // / z_new;
+    T[4] = (1.0 * dw * w_old); // / z_new;
+    T[5] = (1.0 * dw *   1.0); // / z_new;
 
-    T[6] = -0.0 * (dh * h_old * h_new + dw * h_old * w_new) / (z_new * z_new);
-    T[7] = -0.0 * (dh * w_old * h_new + dw * w_old * w_new) / (z_new * z_new);
+    T[6] = 0.0; //-1.0 * (dh * h_old * h_new + dw * h_old * w_new) / (z_new * z_new);
+    T[7] = 0.0; //-1.0 * (dh * w_old * h_new + dw * w_old * w_new) / (z_new * z_new);
 
     //atomic add
     for(int i = 0; i < 8; ++i){
