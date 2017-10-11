@@ -28,8 +28,8 @@ __global__ void matrix_to_offset(const int n, const Dtype* data_matrix,
     const Dtype w_center = (kernel_w - 1.0) / 2.0;
     const Dtype h_scale = 1.0; //h_center;
     const Dtype w_scale = 1.0; //w_center
-    const Dtype h_old = Dtype((c_off / kernel_w) % kernel_h - h_center) / h_scale;
-    const Dtype w_old = Dtype(c_off % kernel_w - w_center) / w_scale;
+    const Dtype h_old = ((c_off / kernel_w) % kernel_h - h_center) / h_scale;
+    const Dtype w_old = (c_off % kernel_w - w_center) / w_scale;
     //transform matrix multiplication: (3, 3) * (w_old, h_old, 1) = (h_new, w_new, z_new)
     Dtype T[8]; //h0, h1, ..., h7, where h8 = 1
     int idx[8]; //index for diff_matrix
@@ -40,8 +40,8 @@ __global__ void matrix_to_offset(const int n, const Dtype* data_matrix,
 
     Dtype h_new = (T[0] + 1.0) * h_old +         T[1] * w_old + T[2];
     Dtype w_new =         T[3] * h_old + (T[4] + 1.0) * w_old + T[5];
-    Dtype z_new =         T[6] * h_old +         T[7] * w_old + 1.0;
-    z_new = 1.0;
+    Dtype z_new = 1.0;  //T[6] * h_old +         T[7] * w_old + 1.0;
+    
     //assign new h and w to data_offset
     int offset_index_h = ((2 * c_off + 0) * height_off + h_off) * width_off + w_off;
     int offset_index_w = ((2 * c_off + 1) * height_off + h_off) * width_off + w_off;
@@ -66,8 +66,8 @@ __global__ void offset_to_matrix(const int n,
     const Dtype w_center = (kernel_w - 1.0) / 2.0;
     const Dtype h_scale = 1.0; //h_center;
     const Dtype w_scale = 1.0; //w_center
-    const Dtype h_old = Dtype((c_off / kernel_w) % kernel_h - h_center) / h_scale;
-    const Dtype w_old = Dtype(c_off % kernel_w - w_center) / w_scale;
+    const Dtype h_old = ((c_off / kernel_w) % kernel_h - h_center) / h_scale;
+    const Dtype w_old = (c_off % kernel_w - w_center) / w_scale;
     //transform matrix multiplication: (3, 3) * (w_old, h_old, 1) = (h_new, w_new, z_new)
     Dtype T[8]; //h0, h1, ..., h7, where h8 = 1
     int idx[8]; //index for diff_matrix

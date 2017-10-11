@@ -10,41 +10,41 @@ using namespace std;
 namespace caffe {
 
 template <typename Dtype>
-__device__ Dtype deformable_im2col_bilinear(const Dtype* bottom_data, 
+__device__ Dtype deformable_im2col_bilinear(const Dtype* bottom_data, const int data_width, 
   const int height, const int width, Dtype h, Dtype w) {
 
-    int h_low = floor(h);
-    int w_low = floor(w);
-    int h_high;
-    int w_high;
-    if (h_low >= height - 1) {
-      h_high = h_low = height - 1;
-      h = (Dtype)h_low;
-    }
-    else {
-      h_high = h_low + 1;
-    }
-  
-    if (w_low >= width - 1) {
-      w_high = w_low = width - 1;
-      w = (Dtype)w_low;
-    }
-    else {
-      w_high = w_low + 1;
-    }
-  
-    Dtype lh = h - h_low;
-    Dtype lw = w - w_low;
-    Dtype hh = 1 - lh, hw = 1 - lw;
-  
-    Dtype v1 = bottom_data[h_low * width + w_low];
-    Dtype v2 = bottom_data[h_low * width + w_high];
-    Dtype v3 = bottom_data[h_high * width + w_low];
-    Dtype v4 = bottom_data[h_high * width + w_high];
-    Dtype w1 = hh * hw, w2 = hh * lw, w3 = lh * hw, w4 = lh * lw;
-  
-    Dtype val = (w1 * v1 + w2 * v2 + w3 * v3 + w4 * v4);
-    return val;
+  int h_low = floor(h);
+  int w_low = floor(w);
+  int h_high;
+  int w_high;
+  if (h_low >= height - 1) {
+	h_high = h_low = height - 1;
+	h = (Dtype)h_low;
+  }
+  else {
+	h_high = h_low + 1;
+  }
+
+  if (w_low >= width - 1) {
+	w_high = w_low = width - 1;
+	w = (Dtype)w_low;
+  }
+  else {
+	w_high = w_low + 1;
+  }
+
+  Dtype lh = h - h_low;
+  Dtype lw = w - w_low;
+  Dtype hh = 1 - lh, hw = 1 - lw;
+
+  Dtype v1 = bottom_data[h_low * data_width + w_low];
+  Dtype v2 = bottom_data[h_low * data_width + w_high];
+  Dtype v3 = bottom_data[h_high * data_width + w_low];
+  Dtype v4 = bottom_data[h_high * data_width + w_high];
+  Dtype w1 = hh * hw, w2 = hh * lw, w3 = lh * hw, w4 = lh * lw;
+
+  Dtype val = (w1 * v1 + w2 * v2 + w3 * v3 + w4 * v4);
+  return val;
 }
 
 
@@ -52,7 +52,7 @@ template <typename Dtype>
 __device__ Dtype get_gradient_weight(Dtype argmax_h, Dtype argmax_w, 
   const int h, const int w, const int height, const int width) {
 
-  if (argmax_h < 0 || argmax_h >= height || argmax_w < 0 || argmax_w >= width) {
+  if (argmax_h < 0 || argmax_h > height || argmax_w < 0 || argmax_w > width) {
 	//empty
 	return 0;
   }
@@ -100,7 +100,7 @@ __device__ Dtype get_coordinate_weight(Dtype argmax_h, Dtype argmax_w,
   const int height, const int width, const Dtype* im_data,
   const int data_width, const int bp_dir) {
 
-  if (argmax_h < 0 || argmax_h >= height || argmax_w < 0 || argmax_w >= width)
+  if (argmax_h < 0 || argmax_h > height || argmax_w < 0 || argmax_w > width)
   {
 	//empty
 	return 0;
@@ -169,27 +169,31 @@ __global__ void deformable_im2col_gpu_kernel(const int n, const Dtype* data_im, 
 	const int h_in = h_col * stride_h - pad_h;
 	const int w_in = w_col * stride_w - pad_w;
 	Dtype* data_col_ptr = data_col + (c_col * height_col + h_col) * width_col + w_col;
-	const Dtype* data_im_ptr = data_im + (c_im * height) * width;
+	const Dtype* data_im_ptr = data_im + (c_im * height + h_in) * width + w_in;
 	const Dtype* data_offset_ptr = data_offset + deformable_group_index * 2 * kernel_h * kernel_w * height_col * width_col;
 
 
-        for (int i = 0; i < kernel_h; ++i) {
-            for (int j = 0; j < kernel_w; ++j) {
-                const int data_offset_h_ptr = ((2 * (i * kernel_w + j)) * height_col + h_col) * width_col + w_col;
-                const int data_offset_w_ptr = ((2 * (i * kernel_w + j) + 1) * height_col + h_col) * width_col + w_col;
-                const Dtype offset_h = data_offset_ptr[data_offset_h_ptr];
-                const Dtype offset_w = data_offset_ptr[data_offset_w_ptr];
-                Dtype val = static_cast<Dtype>(0);
-                const Dtype h_im = h_in + i * dilation_h + offset_h;
-                const Dtype w_im = w_in + j * dilation_w + offset_w;
-                if (h_im >= 0 && w_im >= 0 && h_im < height && w_im < width) {
-                  val = deformable_im2col_bilinear(data_im_ptr, height, width, h_im, w_im);
-                }
-                *data_col_ptr = val;
-                data_col_ptr += height_col * width_col;
-            }
-        }  
-    }
+	for (int i = 0; i < kernel_h; ++i) {
+	  for (int j = 0; j < kernel_w; ++j) {
+		const int data_offset_h_ptr = ((2 * (i * kernel_w + j)) * height_col + h_col) * width_col + w_col;
+		const int data_offset_w_ptr = ((2 * (i * kernel_w + j) + 1) * height_col + h_col) * width_col + w_col;
+		const Dtype offset_h = data_offset_ptr[data_offset_h_ptr];
+		const Dtype offset_w = data_offset_ptr[data_offset_w_ptr];
+		Dtype val = static_cast<Dtype>(0);
+		const Dtype h_im = h_in + i * dilation_h + offset_h;
+		const Dtype w_im = w_in + j * dilation_w + offset_w;
+		if (h_im >= 0 && w_im >= 0 && h_im < height && w_im < width) {
+		  const Dtype map_h = i * dilation_h + offset_h;
+		  const Dtype map_w = j * dilation_w + offset_w;
+		  const int cur_height = height - h_in;
+		  const int cur_width = width - w_in;
+		  val = deformable_im2col_bilinear(data_im_ptr, width, cur_height, cur_width, map_h, map_w);
+		}
+		*data_col_ptr = val;
+		data_col_ptr += height_col * width_col;
+	  }
+	}
+  }
 }
 template <typename Dtype>
 void deformable_im2col_gpu(const Dtype* data_im, const Dtype* data_offset, const int channels,
@@ -265,11 +269,10 @@ __global__ void deformable_col2im_gpu_kernel(const int n, const Dtype* data_col,
     const Dtype cur_inv_h_data = h_in + i * dilation_h + offset_h;
     const Dtype cur_inv_w_data = w_in + j * dilation_w + offset_w;
 
-    if (cur_inv_h_data >= 0 && cur_inv_w_data >= 0 && 
-            cur_inv_h_data < height && cur_inv_w_data < width) {
-        const int cur_h = floor(cur_inv_h_data);
-        const int cur_w = floor(cur_inv_w_data);
-        const Dtype cur_top_grad = data_col[index];
+    const Dtype cur_top_grad = data_col[index];
+    const int cur_h = floor(cur_inv_h_data);
+    const int cur_w = floor(cur_inv_w_data);
+	if (cur_h >= 0 && cur_w >= 0 && cur_h < height && cur_w < width) {
         for (int dy = 0; dy <= 1; dy++) {
           for (int dx = 0; dx <= 1; dx++) {
             if (cur_h + dy >= 0 && cur_h + dy < height &&
@@ -365,6 +368,9 @@ __global__ void deformable_col2im_coord_gpu_kernel(const int n, const Dtype* dat
       const Dtype offset_w = data_offset_ptr[data_offset_w_ptr];
       Dtype inv_h = h_in + i * dilation_h + offset_h;
       Dtype inv_w = w_in + j * dilation_w + offset_w;
+      if (inv_h < 0 || inv_w < 0 || inv_h >= height || inv_w >= width) {
+        inv_h = inv_w = -1;
+      }
       const Dtype weight = get_coordinate_weight(
         inv_h, inv_w,
         height, width, data_im_ptr + cnt * height * width, width, bp_dir);
