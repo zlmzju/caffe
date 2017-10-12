@@ -73,12 +73,8 @@ __global__ void offset_to_matrix(const int n,
     int idx[8]; //index for diff_matrix
     for(int i = 0; i < 8; ++i){
         idx[i] = (i * height_off + h_off) * width_off + w_off;
-//        T[i] = data_matrix[idx[i]];
     }
 
-//    Dtype h_new = (T[0] + 1.0) * h_old +         T[1] * w_old + T[2];
-//    Dtype w_new =         T[3] * h_old + (T[4] + 1.0) * w_old + T[5];
-//    Dtype z_new =         T[6] * h_old +         T[7] * w_old + 1.0;
     //assign new h and w to data_offset
     int offset_index_h = ((2 * c_off + 0) * height_off + h_off) * width_off + w_off;
     int offset_index_w = ((2 * c_off + 1) * height_off + h_off) * width_off + w_off;
@@ -86,16 +82,16 @@ __global__ void offset_to_matrix(const int n,
     Dtype dw = diff_offset[offset_index_w] * w_scale;
 
     //diff matrix values
-    T[0] = (1.0 * dh * h_old); // / z_new;
-    T[1] = (1.0 * dh * w_old); // / z_new;
-    T[2] = (1.0 * dh *   1.0); // / z_new;
+    T[0] = (1.0 * dh * h_old); 
+    T[1] = (1.0 * dh * w_old); 
+    T[2] = (1.0 * dh *   1.0); 
 
-    T[3] = (1.0 * dw * h_old); // / z_new;
-    T[4] = (1.0 * dw * w_old); // / z_new;
-    T[5] = (1.0 * dw *   1.0); // / z_new;
+    T[3] = (1.0 * dw * h_old); 
+    T[4] = (1.0 * dw * w_old); 
+    T[5] = (1.0 * dw *   1.0); 
 
-    T[6] = 0.0; //-1.0 * (dh * h_old * h_new + dw * h_old * w_new) / (z_new * z_new);
-    T[7] = 0.0; //-1.0 * (dh * w_old * h_new + dw * w_old * w_new) / (z_new * z_new);
+    T[6] = 0.0; 
+    T[7] = 0.0; 
 
     //atomic add
     for(int i = 0; i < 8; ++i){
@@ -108,6 +104,7 @@ void TransformOffsetLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom
       const vector<Blob<Dtype>*>& top) {
     const Dtype* matrix = bottom[0]->gpu_data();
     Dtype* offset = top[0]->mutable_gpu_data();
+    caffe_gpu_set(top[0]->count(), Dtype(0), offset);
 
     const int num_threads = top[0]->count(1) / 2;
     for(int i = 0; i < top[0]->shape(0); ++i){

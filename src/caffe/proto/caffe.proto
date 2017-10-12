@@ -1195,7 +1195,6 @@ message ThresholdParameter {
 // Message that stores parameters used by TransformOffsetLayer
 message TransformOffsetParameter {
   optional uint32 num_output = 1; // The number of outputs for the layer
-  optional int32 kernel_size = 2 [default = -1]; // The kernel size (kernel_h = kernel_w)
 }
 
 message WindowDataParameter {
