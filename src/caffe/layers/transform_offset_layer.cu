@@ -24,13 +24,13 @@ __global__ void matrix_to_offset(const int n, const Dtype* data_matrix,
     const int h_off = (index / width_off) % height_off;
     const int c_off = index / width_off / height_off;
 
-    const Dtype h_center = (kernel_h - 1.0) / 2.0;
-    const Dtype w_center = (kernel_w - 1.0) / 2.0;
-    const Dtype h_scale = 1.0; //h_center;
-    const Dtype w_scale = 1.0; //w_center
-    const Dtype h_old = ((c_off / kernel_w) % kernel_h - h_center) / h_scale;
-    const Dtype w_old = (c_off % kernel_w - w_center) / w_scale;
-    //transform matrix multiplication: (3, 3) * (w_old, h_old, 1) = (h_new, w_new, z_new)
+    const Dtype x_center = (kernel_w - 1.0) / 2.0;
+    const Dtype y_center = (kernel_h - 1.0) / 2.0;
+    const Dtype x_scale = 1.0; //x_center
+    const Dtype y_scale = 1.0; //y_center;
+    const Dtype x_old = (c_off % kernel_w - x_center) / x_scale;
+    const Dtype y_old = ((c_off / kernel_w) % kernel_h - y_center) / y_scale;
+    //transform matrix multiplication: (3, 3) * (x_old, y_old, 1) = (y_new, x_new, z_new)
     Dtype T[8]; //h0, h1, ..., h7, where h8 = 1
     int idx[8]; //index for diff_matrix
     for(int i = 0; i < 8; ++i){
@@ -38,15 +38,15 @@ __global__ void matrix_to_offset(const int n, const Dtype* data_matrix,
         T[i] = data_matrix[idx[i]];
     }
 
-    Dtype h_new = (T[0] + 1.0) * h_old +         T[1] * w_old + T[2];
-    Dtype w_new =         T[3] * h_old + (T[4] + 1.0) * w_old + T[5];
-    Dtype z_new = 1.0;  //T[6] * h_old +         T[7] * w_old + 1.0;
+    Dtype x_new = (T[0] + 1.0) * x_old +         T[1] * y_old + T[2];
+    Dtype y_new =         T[3] * x_old + (T[4] + 1.0) * y_old + T[5];
+    Dtype z_new = 1.0;  //T[6] * x_old +         T[7] * y_old + 1.0;
     
     //assign new h and w to data_offset
     int offset_index_h = ((2 * c_off + 0) * height_off + h_off) * width_off + w_off;
     int offset_index_w = ((2 * c_off + 1) * height_off + h_off) * width_off + w_off;
-    data_offset[offset_index_h] = (h_new / z_new - h_old) * h_scale;
-    data_offset[offset_index_w] = (w_new / z_new - w_old) * w_scale;
+    data_offset[offset_index_h] = (y_new / z_new - y_old) * y_scale;
+    data_offset[offset_index_w] = (x_new / z_new - x_old) * x_scale;
   }
 }
 
@@ -62,13 +62,13 @@ __global__ void offset_to_matrix(const int n,
     const int h_off = (index / width_off) % height_off;
     const int c_off = index / width_off / height_off;
 
-    const Dtype h_center = (kernel_h - 1.0) / 2.0;
-    const Dtype w_center = (kernel_w - 1.0) / 2.0;
-    const Dtype h_scale = 1.0; //h_center;
-    const Dtype w_scale = 1.0; //w_center
-    const Dtype h_old = ((c_off / kernel_w) % kernel_h - h_center) / h_scale;
-    const Dtype w_old = (c_off % kernel_w - w_center) / w_scale;
-    //transform matrix multiplication: (3, 3) * (w_old, h_old, 1) = (h_new, w_new, z_new)
+    const Dtype x_center = (kernel_w - 1.0) / 2.0;
+    const Dtype y_center = (kernel_h - 1.0) / 2.0;
+    const Dtype x_scale = 1.0; //x_center
+    const Dtype y_scale = 1.0; //y_center;
+    const Dtype x_old = (c_off % kernel_w - x_center) / x_scale;
+    const Dtype y_old = ((c_off / kernel_w) % kernel_h - y_center) / y_scale;
+    //transform matrix multiplication: (3, 3) * (x_old, y_old, 1) = (y_new, x_new, z_new)
     Dtype T[8]; //h0, h1, ..., h7, where h8 = 1
     int idx[8]; //index for diff_matrix
     for(int i = 0; i < 8; ++i){
@@ -78,17 +78,17 @@ __global__ void offset_to_matrix(const int n,
     //assign new h and w to data_offset
     int offset_index_h = ((2 * c_off + 0) * height_off + h_off) * width_off + w_off;
     int offset_index_w = ((2 * c_off + 1) * height_off + h_off) * width_off + w_off;
-    Dtype dh = diff_offset[offset_index_h] * h_scale;
-    Dtype dw = diff_offset[offset_index_w] * w_scale;
+    Dtype dy = diff_offset[offset_index_h] * y_scale;
+    Dtype dx = diff_offset[offset_index_w] * x_scale;
 
     //diff matrix values
-    T[0] = (1.0 * dh * h_old); 
-    T[1] = (1.0 * dh * w_old); 
-    T[2] = (1.0 * dh *   1.0); 
+    T[0] = (1.0 * dx * x_old); 
+    T[1] = (1.0 * dx * y_old); 
+    T[2] = (1.0 * dx *   1.0); 
 
-    T[3] = (1.0 * dw * h_old); 
-    T[4] = (1.0 * dw * w_old); 
-    T[5] = (1.0 * dw *   1.0); 
+    T[3] = (1.0 * dy * x_old); 
+    T[4] = (1.0 * dy * y_old); 
+    T[5] = (1.0 * dy *   1.0); 
 
     T[6] = 0.0; 
     T[7] = 0.0; 

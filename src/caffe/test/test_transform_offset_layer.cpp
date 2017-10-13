@@ -33,18 +33,18 @@ void transform_offset(const Blob<Dtype>* in, TransformOffsetParameter* transform
         }
         for (int i = 0; i < kernel_h; i++) {
           for (int j = 0; j < kernel_w; j++) {
-            Dtype cx = (kernel_h - 1.0) / 2.0;
-            Dtype cy = (kernel_w - 1.0) / 2.0;
+            Dtype cx = (kernel_w - 1.0) / 2.0;
+            Dtype cy = (kernel_h - 1.0) / 2.0;
             Dtype sx = 1.0;
             Dtype sy = 1.0;
-            Dtype x = (i - cx) / sx;
-            Dtype y = (j - cy) / sy;
+            Dtype x = (j - cx) / sx;
+            Dtype y = (i - cy) / sy;
             Dtype x_new = (T[0] + 1.0) * x + T[1] * y + T[2];
             Dtype y_new = T[3] * x + (T[4] + 1.0) * y + T[5];
             Dtype z_new = T[6] * x + T[7] * y + 1.0;
             z_new = 1.0;
-            out_data[out->offset(n, 2 * (i * kernel_w + j) + 0, h, w)] = (x_new / z_new - x) * sx;
-            out_data[out->offset(n, 2 * (i * kernel_w + j) + 1, h, w)] = (y_new / z_new - y) * sy;
+            out_data[out->offset(n, 2 * (i * kernel_w + j) + 0, h, w)] = (y_new / z_new - y) * sy;
+            out_data[out->offset(n, 2 * (i * kernel_w + j) + 1, h, w)] = (x_new / z_new - x) * sx;
           }
         }
       }
