@@ -54,7 +54,7 @@ void OnlineTripletLossLayer<Dtype>::Forward_gpu(
 
   //calculate mean distances within each class
   vector<Dtype> mean_distances;
-  vector<pair<Dtype, Dtype>> min_max_distances;
+  vector<pair<Dtype, Dtype> > min_max_distances;
   // classes
   for (int c = 0; c<boundary.size() - 1; c++) {
     // query
