@@ -407,6 +407,7 @@ message LayerParameter {
   optional TanHParameter tanh_param = 127;
   optional ThresholdParameter threshold_param = 128;
   optional TransformOffsetParameter transform_offset_param = 8888889;
+  optional TransformAnchorParameter transform_anchor_param = 8888890;
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
 }
@@ -1196,6 +1197,13 @@ message ThresholdParameter {
 message TransformOffsetParameter {
   optional uint32 num_output = 1; // The number of outputs for the layer
 }
+
+// Message that stores parameters used by TransformAnchorLayer
+message TransformAnchorParameter {
+  optional float stride = 1 [default = 16]; //
+  optional uint32 kernel_size = 2 [default = 7]; 
+}
+
 
 message WindowDataParameter {
   // Specify the data source.

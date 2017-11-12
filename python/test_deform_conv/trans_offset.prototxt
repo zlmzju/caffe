@@ -1,0 +1,15 @@
+
+input: "matrix"
+input_dim: 1
+input_dim: 8
+input_dim: 1
+input_dim: 1
+layer{
+    name: "offset"
+    type: "TransformOffset"
+    bottom: "matrix"
+    top: "offset"
+    transform_offset_param{
+        num_output: 18
+    }
+}
