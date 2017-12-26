@@ -67,7 +67,6 @@ void OnlineTripletLossLayer<Dtype>::Forward_cpu(
   const Dtype* label = bottom[1]->cpu_data();
   Dtype* loss_data = top[0]->mutable_cpu_data();
   const int num = bottom[0]->num();
-  const int dim = bottom[0]->count() / num;
   const int channels = bottom[0]->channels();
   const bool all_triplets = this->layer_param_.triplet_loss_param().all_triplets();
   /**
@@ -97,7 +96,7 @@ void OnlineTripletLossLayer<Dtype>::Forward_cpu(
   boundary.push_back(num);
   //calculate mean distances within each class
   vector<Dtype> mean_distances;
-  vector<pair<Dtype, Dtype>> min_max_distances;
+  vector<pair<Dtype, Dtype> > min_max_distances;
   // classes
   for (int c = 0; c<boundary.size() - 1; c++) {
     // query
@@ -119,35 +118,14 @@ void OnlineTripletLossLayer<Dtype>::Forward_cpu(
     min_max_distances.push_back(pair<Dtype, Dtype>(min_dist, max_dist));
   }
   /**
-  * Sampling pairs and triplets, then computing the loss
+  * Sampling triplets, then computing the loss
   */
   Dtype pair_loss = Dtype(0);
   Dtype rank_loss = Dtype(0);
   Dtype cur_rank_loss = Dtype(0);
   Dtype pos_dist = Dtype(0);
   Dtype neg_dist = Dtype(0);
-  Dtype one_minus_mu = Dtype(1) - mu_;
-  //pairwise loss
-  pos_pairs_.clear();
-  if (one_minus_mu > Dtype(0)) {
-    // classes
-    for (int c = 0; c<boundary.size() - 1; c++) {
-      // query
-      for (int i = boundary[c]; i<boundary[c + 1]; ++i) {
-        const Dtype * dist_data = dist_.cpu_data() + dist_.offset(i);
-        // positive
-        for (int j = boundary[c]; j<boundary[c + 1]; ++j) {
-          if (i == j) {
-            continue;
-          }
-          pair_loss += dist_data[j];
-          pos_pairs_.push_back(pair<int, int>(i, j));
-        }
-      }
-    }
-  }
-  pair_loss = pos_pairs_.size() > 0 ? pair_loss / pos_pairs_.size() : 0;
-  
+ 
   //triplet loss
   triplets_.clear();
   int all_triplet_size = 0;
@@ -220,7 +198,7 @@ void OnlineTripletLossLayer<Dtype>::Forward_cpu(
   rank_loss = num_triplets_> 0 ? rank_loss / num_triplets_ : 0;
 
   // average loss among all triplets
-  loss_data[0] = rank_loss * mu_ + pair_loss * one_minus_mu;
+  loss_data[0] = rank_loss * mu_;
   // average accuracy among all triplets
   if (top.size()>1)
     top[1]->mutable_cpu_data()[0] = Dtype(1) - (all_triplet_size > 0 ? Dtype(num_error) / all_triplet_size : 0);
@@ -259,21 +237,6 @@ void OnlineTripletLossLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top
         agg_data[neg_id * num + neg_id] -= scale1;
       }
     }
-    
-    if (pos_pairs_.size() > 0){
-      Dtype scale2 = Dtype(2.0) / pos_pairs_.size() * (Dtype(1.0) - mu_);
-      for (int i = 0; i < pos_pairs_.size(); ++i) {
-        int qry_id = pos_pairs_[i].first;
-        int pos_id = pos_pairs_[i].second;
-
-        agg_data[qry_id * num + qry_id] += scale2;
-        agg_data[qry_id * num + pos_id] -= scale2;
-
-        agg_data[pos_id * num + pos_id] += scale2;
-        agg_data[pos_id * num + qry_id] -= scale2;
-      }
-    }
-
     const Dtype loss_weight = top[0]->cpu_diff()[0];
     caffe_cpu_gemm(CblasNoTrans, CblasNoTrans, num, dim, num,
       loss_weight, agg_data, bottom_data, Dtype(0), bottom_diff);
