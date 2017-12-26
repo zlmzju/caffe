@@ -42,7 +42,6 @@ void OnlineTripletLossLayer<Dtype>::LayerSetUp(
     << "Sampling method implemented only for hard, moderate, or both of them.";
   //init, not necessary
   num_triplets_ = 0;
-  pos_pairs_.clear();
   triplets_.clear();
 }
 
@@ -120,7 +119,6 @@ void OnlineTripletLossLayer<Dtype>::Forward_cpu(
   /**
   * Sampling triplets, then computing the loss
   */
-  Dtype pair_loss = Dtype(0);
   Dtype rank_loss = Dtype(0);
   Dtype cur_rank_loss = Dtype(0);
   Dtype pos_dist = Dtype(0);

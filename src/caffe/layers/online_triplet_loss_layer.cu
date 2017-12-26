@@ -78,7 +78,6 @@ void OnlineTripletLossLayer<Dtype>::Forward_gpu(
   /**
   * Sampling triplets and computing the loss
   */
-  Dtype pair_loss = Dtype(0);
   Dtype rank_loss = Dtype(0);
   Dtype cur_rank_loss;
   Dtype pos_dist;
